@@ -1,0 +1,162 @@
+---
+title: "Demographic Profile of South Ayrshire"
+subtitle: "Comparison with Scottish Council Areas"
+format: html
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+source("../R/fetch_population_data.R")
+source("../R/calculate_indicators.R")
+source("../R/plot_demographics.R")
+
+pop_data <- get_population_data()
+indicators <- calculate_all_indicators(pop_data)
+ranked <- rank_indicators(indicators)
+similarity <- calculate_demographic_similarity(indicators)
+
+sa <- indicators |> filter(council_area_code == "S12000028")
+scot <- indicators |> filter(council_area_code == "S92000003")
+data_year <- unique(pop_data$year)
+```
+
+# Introduction
+
+This analysis examines the demographic profile of South Ayrshire in the context of all 32 Scottish council areas. It forms part of the evidence base for the [Revitalising Ayr Town Centre](../docs/background.qmd) project, which hypothesises that population ageing and depopulation are contributing to a vicious cycle of town centre decline.
+
+The key questions are:
+
+- **Is South Ayrshire ageing faster than comparable areas?**
+- **Which council areas are most demographically similar?**
+- **Where does South Ayrshire sit relative to Scotland as a whole?**
+
+Data source: NRS mid-year population estimates (`r data_year`), single year of age by sex, for all 32 council areas and Scotland.
+
+# South Ayrshire's Population Structure
+
+South Ayrshire has a total population of **`r format(sa$total_population, big.mark = ",")`** and a median age of **`r round(sa$median_age, 1)`** years, compared to Scotland's median of **`r round(scot$median_age, 1)`** years.
+
+The population pyramid below shows South Ayrshire's age-sex distribution (coloured bars) against the Scotland average (dark outline). The comparison uses proportions of total population so that areas of different sizes are directly comparable.
+
+```{r pyramid, fig.width=8, fig.height=10}
+plot_population_pyramid(pop_data, "S12000028")
+```
+
+# Indicator Rankings
+
+The table below summarises key demographic indicators for South Ayrshire, with its rank among all 33 areas (32 councils + Scotland). Rank 1 = highest value.
+
+```{r indicator-table}
+display_cols <- c("median_age", "old_age_dep_ratio", "child_dep_ratio",
+                  "working_age_prop", "prop_65_plus", "prop_75_plus")
+display_names <- c("Median age", "Old-age dependency ratio (65+/16-64)",
+                   "Child dependency ratio (0-15/16-64)",
+                   "Working-age proportion (16-64)",
+                   "Proportion aged 65+", "Proportion aged 75+")
+
+sa_ranked <- ranked |> filter(council_area_code == "S12000028")
+scot_vals <- ranked |> filter(council_area_code == "S92000003")
+
+comparison_table <- data.frame(
+  Indicator = display_names,
+  `South Ayrshire` = sapply(display_cols, function(col) {
+    val <- sa_ranked[[col]]
+    if (val < 1) sprintf("%.1f%%", val * 100) else sprintf("%.1f", val)
+  }),
+  Scotland = sapply(display_cols, function(col) {
+    val <- scot_vals[[col]]
+    if (val < 1) sprintf("%.1f%%", val * 100) else sprintf("%.1f", val)
+  }),
+  Rank = sapply(display_cols, function(col) {
+    sa_ranked[[paste0(col, "_rank")]]
+  }),
+  check.names = FALSE
+)
+
+knitr::kable(comparison_table, row.names = FALSE,
+             caption = paste0("South Ayrshire demographic indicators (", data_year, ")"))
+```
+
+## Median Age
+
+```{r median-age-chart, fig.width=8, fig.height=8}
+plot_indicator_comparison(indicators, "median_age",
+                          title = "Median Age by Council Area")
+```
+
+## Old-Age Dependency Ratio
+
+The old-age dependency ratio measures the number of people aged 65+ per person of working age (16–64). A higher ratio implies greater pressure on services and a smaller economically active population.
+
+```{r dep-ratio-chart, fig.width=8, fig.height=8}
+plot_indicator_comparison(indicators, "old_age_dep_ratio",
+                          title = "Old-Age Dependency Ratio (65+ / 16-64)")
+```
+
+## Proportion Aged 75+
+
+This indicator captures "deep ageing" — the proportion of the population in the oldest age groups, who are most likely to need intensive health and care services.
+
+```{r prop-75-chart, fig.width=8, fig.height=8}
+plot_indicator_comparison(indicators, "prop_75_plus",
+                          title = "Proportion Aged 75+", pct = TRUE)
+```
+
+# Most Similar Council Areas
+
+To identify which council areas are most demographically similar to South Ayrshire, six indicators were standardised (z-scored) and Euclidean distance was calculated in this standardised space. The indicators used are: median age, old-age dependency ratio, child dependency ratio, working-age proportion, age distribution spread (SD), and proportion aged 75+.
+
+```{r similarity-chart, fig.width=8, fig.height=6}
+plot_similarity_ranking(similarity, top_n = 10)
+```
+
+```{r similarity-table}
+sim_display <- similarity |>
+  head(10) |>
+  mutate(
+    across(c(median_age, sd_age), ~ round(., 1)),
+    across(c(old_age_dep_ratio, child_dep_ratio, working_age_prop, prop_75_plus),
+           ~ sprintf("%.1f%%", . * 100)),
+    distance = round(distance, 2)
+  ) |>
+  select(
+    `Council Area` = council_area_name,
+    `Population` = total_population,
+    `Median Age` = median_age,
+    `Old-Age Dep.` = old_age_dep_ratio,
+    `Working Age %` = working_age_prop,
+    `75+ %` = prop_75_plus,
+    Distance = distance
+  )
+
+knitr::kable(sim_display, row.names = FALSE,
+             caption = "Top 10 most demographically similar council areas to South Ayrshire")
+```
+
+## Population Pyramids: South Ayrshire and Most Similar Areas
+
+```{r pyramid-comparison, fig.width=10, fig.height=12}
+top_similar <- c("S12000028", similarity$council_area_code[1:3])
+plot_pyramid_comparison(pop_data, top_similar)
+```
+
+# Key Findings
+
+```{r findings}
+sa_median_rank <- sa_ranked$median_age_rank
+sa_dep_rank <- sa_ranked$old_age_dep_ratio_rank
+age_gap <- round(sa$median_age - scot$median_age, 1)
+```
+
+- **South Ayrshire is substantially older than Scotland as a whole.** Its median age (`r round(sa$median_age, 1)`) is `r age_gap` years above the national median (`r round(scot$median_age, 1)`), ranking `r sa_median_rank`th oldest of 33 areas.
+
+- **The old-age dependency ratio is among the highest in Scotland** (rank `r sa_dep_rank`), meaning South Ayrshire has proportionally more people aged 65+ relative to its working-age population than most other council areas.
+
+- **The most demographically similar areas** are `r paste(similarity$council_area_name[1:3], collapse = ", ")`. These share South Ayrshire's pattern of an ageing population with a relatively small working-age base.
+
+- **These findings are consistent with the project's theory of change**: an ageing and shrinking population weakens the economic base, contributing to the decline cycle identified in the [project background](../docs/background.qmd).
+
+- **Next steps**: examine population *trends* over time (not just the current snapshot), investigate migration flows, and layer in economic indicators (vacancy rates, footfall) to understand whether the demographic structure is accelerating town centre decline.

@@ -1,0 +1,10 @@
+project:
+  title: "Revitalising Ayr Town Centre"
+  output-dir: _outputs
+
+format:
+  html:
+    toc: true
+    theme: default
+
+bibliography: refs/references.bib

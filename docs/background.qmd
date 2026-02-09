@@ -1,0 +1,90 @@
+---
+title: "Revitalising Ayr Town Centre"
+format: html
+---
+
+# Background
+
+Lack of convenient car parking in Ayr (Scotland) may be having a detrimental impact on popularity of the town centre. This includes things like one way roads and car parking, and bottlenecks for accessing the town.
+
+Consequence: Flight of businesses, loss of amenities, activity centres etc. Depopulation of the city, especially families with children.
+
+Context: buildings reaching end of lifespan; 30 years of use.
+
+Solutions: More appealing amenities (e.g. but not exclusively retail and hospitality); socioeconomic anchors e.g. health centres.
+
+# Theory of change
+
+The core hypothesis is that poor access and infrastructure (parking, road layout) reduces footfall in the town centre, which in turn drives business closures and loss of amenities. This creates a vicious cycle: fewer amenities make the town less attractive, accelerating depopulation — particularly among younger families — which further reduces demand. An ageing and shrinking population then weakens the tax base and economic case for investment, deepening decline.
+
+Proposed interventions aim to break this cycle at two points:
+
+1. **Improve access and attractiveness** — making the town centre easier to reach and more appealing to visit, increasing footfall and supporting existing businesses.
+2. **Anchor the population** — embedding essential services (e.g. health centres, community facilities) in the town centre so that it remains a hub of daily life regardless of retail trends.
+
+```{mermaid}
+graph TD
+    A[Poor access & infrastructure] --> B[Reduced footfall]
+    B --> C[Business closures & loss of amenities]
+    C --> D[Town centre less attractive]
+    D --> E[Depopulation, especially young families]
+    E --> F[Ageing & shrinking population]
+    F --> G[Weaker economic base]
+    G --> D
+
+    H[Intervention: Improve access & amenities] -.-> B
+    I[Intervention: Anchor essential services] -.-> C
+    H -.-> D
+    I -.-> E
+```
+
+# Aim of project
+
+- Report and synthesise key demographics of Ayr in comparison with other similar places
+    - Is Ayr ageing especially quickly?
+    - Is Ayr passing a tipping point?
+- Develop and test different ideas about how to revitalise the town centre
+
+## Comparator places
+
+To make demographic comparisons meaningful, Ayr should be benchmarked against towns selected on criteria such as:
+
+- **Similar population size** — medium-sized Scottish towns (roughly 40,000–60,000)
+- **Coastal/geographic similarity** — other Ayrshire or west-of-Scotland coastal towns
+- **Economic profile** — towns with comparable reliance on retail and services in the town centre
+- **Trajectory** — towns that have experienced similar decline, and (where possible) towns that have successfully reversed it
+
+Candidate comparators might include places like Kilmarnock, Irvine, Dumfries, Perth, or Stirling, though the final selection should be guided by data availability and the specific questions being addressed.
+
+## Data sources and indicators
+
+Key datasets to draw on include:
+
+**Demographics and population**
+
+- NRS mid-year population estimates (age, sex, area)
+- Scotland Census 2022 (detailed demographics, housing, economic activity)
+- School roll data (as a proxy for families with children)
+- GP registration data / migration flows
+
+**Economic vitality**
+
+- Business rates and vacancy rates for Ayr town centre
+- Footfall data (if available from local council or BID)
+- Scottish Index of Multiple Deprivation (SIMD)
+
+**Built environment**
+
+- Building condition surveys or age-of-stock data
+- Planning applications and investment data
+
+The choice of indicators should be tied to what "tipping point" means in practice — e.g. a threshold rate of vacancy, a demographic age-structure ratio, or a sustained rate of net out-migration.
+
+# Suggested workflow
+
+- Use modular .md or .qmd (quarto) files, which can be developed and potentially slotted into presentations, html files, pdf reports etc.
+- Use Mermaid diagrams (supported natively in Quarto and GitHub markdown) for logic models, flowcharts, and causal diagrams
+- Put the input files in md/ folder or similar
+- Use .bib references in a refs/ folder
+- Create word docs in _outputs/docx and ppt presentations in _outputs/pptx
+- Also create excel workbooks where required in data/excel

@@ -1,0 +1,23 @@
+# Quarto render artifacts
+*_files/
+.quarto/
+*.html
+
+# Rendered outputs (regenerable)
+_outputs/
+
+# Data files (may be large; track selectively if needed)
+data/raw/*.xlsx
+data/raw/*.csv
+data/raw/*.xls
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# R artifacts
+.Rhistory
+.RData
+.Rproj.user/
+
+/.quarto/
