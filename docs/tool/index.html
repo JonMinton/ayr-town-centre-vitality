@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ayr Datazone Selection Tool</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; height: 100vh; display: flex; flex-direction: column; }
@@ -66,6 +68,13 @@
     .legend i { width: 14px; height: 14px; display: inline-block; margin-right: 6px; vertical-align: middle; border: 1px solid #999; }
     .legend .legend-title { font-weight: bold; margin-bottom: 4px; }
 
+    /* Draw selection buttons */
+    .btn-draw { background: #8e44ad; color: white; display: inline-block; width: 48%; }
+    .btn-draw + .btn-draw { margin-left: 4%; }
+    .btn-draw.drawing { background: #f39c12; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    .draw-row { display: flex; gap: 0; margin-bottom: 4px; }
+
     /* Google Sheet config */
     #config-section { background: #fff3cd; }
     #config-section input { font-family: monospace; font-size: 0.75em; }
@@ -82,7 +91,7 @@
 
 <div id="header">
   <h1>Ayr Town Centre Datazone Selection</h1>
-  <p>Click datazones on the map to assign them to "Town Centre" or "Wider Ayr" tiers. Selections are saved in your browser automatically.</p>
+  <p>Click datazones to select individually, or draw a rectangle/lasso to bulk-select. Selections are saved in your browser automatically.</p>
 </div>
 
 <div id="main">
@@ -98,7 +107,9 @@
         <button class="tier-btn active-tc" id="btn-tc" onclick="setTier('tc')">Town Centre</button>
         <button class="tier-btn" id="btn-wa" onclick="setTier('wa')">Wider Ayr</button>
       </div>
-      <p style="font-size:0.78em; color:#666;">Click a datazone on the map to assign it to the active tier. Click again to remove.</p>
+      <button class="btn btn-draw" id="btn-draw-rect" onclick="startDraw('rectangle')">Draw Rectangle</button>
+      <button class="btn btn-draw" id="btn-draw-lasso" onclick="startDraw('polygon')">Draw Lasso</button>
+      <p style="font-size:0.78em; color:#666; margin-top:6px;"><strong>Click</strong> a datazone to toggle it. <strong>Draw a shape</strong> to bulk-select all datazones inside it. Click a selected datazone again to deselect it.</p>
     </div>
 
     <div class="section">
@@ -437,6 +448,132 @@ function buildPayload() {
     town_centre: [...townCentreDZs].sort(),
     wider_ayr: [...widerAyrDZs].sort()
   };
+}
+
+// ---- Draw tools for bulk selection ----
+let currentDrawHandler = null;
+let drawnItems = new L.FeatureGroup();
+map.addLayer(drawnItems);
+
+function startDraw(mode) {
+  // Cancel any active draw
+  cancelDraw();
+
+  let handler;
+  if (mode === 'rectangle') {
+    handler = new L.Draw.Rectangle(map, {
+      shapeOptions: {
+        color: activeTier === 'tc' ? '#c0392b' : '#2980b9',
+        weight: 2,
+        fillOpacity: 0.1
+      }
+    });
+    document.getElementById('btn-draw-rect').classList.add('drawing');
+    document.getElementById('btn-draw-rect').textContent = 'Drawing... (ESC to cancel)';
+  } else {
+    handler = new L.Draw.Polygon(map, {
+      shapeOptions: {
+        color: activeTier === 'tc' ? '#c0392b' : '#2980b9',
+        weight: 2,
+        fillOpacity: 0.1
+      },
+      showArea: false
+    });
+    document.getElementById('btn-draw-lasso').classList.add('drawing');
+    document.getElementById('btn-draw-lasso').textContent = 'Click points... (ESC to cancel)';
+  }
+
+  currentDrawHandler = handler;
+  handler.enable();
+
+  showStatus('Draw a shape on the map. ' +
+    (mode === 'rectangle' ? 'Click and drag.' : 'Click points to define shape, click first point to close.'),
+    'info');
+}
+
+function cancelDraw() {
+  if (currentDrawHandler) {
+    currentDrawHandler.disable();
+    currentDrawHandler = null;
+  }
+  resetDrawButtons();
+}
+
+function resetDrawButtons() {
+  const rectBtn = document.getElementById('btn-draw-rect');
+  const lassoBtn = document.getElementById('btn-draw-lasso');
+  rectBtn.classList.remove('drawing');
+  lassoBtn.classList.remove('drawing');
+  rectBtn.textContent = 'Draw Rectangle';
+  lassoBtn.textContent = 'Draw Lasso';
+}
+
+// Handle ESC to cancel drawing
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && currentDrawHandler) {
+    cancelDraw();
+    hideStatus();
+  }
+});
+
+// Handle completed draw
+map.on(L.Draw.Event.CREATED, function(event) {
+  const drawnLayer = event.layer;
+  drawnItems.addLayer(drawnLayer);
+
+  // Find all datazones whose centroid falls within the drawn shape
+  const drawnBounds = drawnLayer.getBounds ? drawnLayer.getBounds() : null;
+  const drawnGeoJSON = drawnLayer.toGeoJSON();
+  let selectedCount = 0;
+
+  Object.keys(featuresByDZ).forEach(dz => {
+    const layer = featuresByDZ[dz];
+    const centroid = layer.getBounds().getCenter();
+
+    // Quick bounds check first (for rectangle and polygon)
+    if (drawnBounds && !drawnBounds.contains(centroid)) return;
+
+    // For polygons, do point-in-polygon check
+    if (drawnGeoJSON.geometry.type === 'Polygon') {
+      if (!pointInPolygon(centroid, drawnGeoJSON.geometry.coordinates[0])) return;
+    }
+
+    // Add to active tier (don't toggle — bulk select always adds)
+    if (activeTier === 'tc') {
+      widerAyrDZs.delete(dz);
+      townCentreDZs.add(dz);
+    } else {
+      townCentreDZs.delete(dz);
+      widerAyrDZs.add(dz);
+    }
+    selectedCount++;
+  });
+
+  // Remove the drawn shape after a brief display
+  setTimeout(() => drawnItems.removeLayer(drawnLayer), 500);
+
+  refreshAllStyles();
+  updateLists();
+  saveToStorage();
+  resetDrawButtons();
+  currentDrawHandler = null;
+
+  const tierName = activeTier === 'tc' ? 'Town Centre' : 'Wider Ayr';
+  showStatus('Added ' + selectedCount + ' datazones to ' + tierName + '.', 'success');
+  setTimeout(() => hideStatus(), 3000);
+});
+
+// Point-in-polygon (ray casting) for lasso selection
+function pointInPolygon(point, polygon) {
+  const x = point.lng, y = point.lat;
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const xi = polygon[i][0], yi = polygon[i][1];
+    const xj = polygon[j][0], yj = polygon[j][1];
+    const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
 }
 
 // ---- Status messages ----
