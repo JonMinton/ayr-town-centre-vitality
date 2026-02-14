@@ -1,0 +1,49 @@
+---
+title: "Hourstons Building and Arran Mall Redevelopment"
+subtitle: "Reference Summary"
+bibliography: ../refs/references.bib
+format:
+  html:
+    embed-resources: true
+---
+
+## Overview
+
+The former Hourstons Building and former Arran Mall occupy a combined site on Alloway Street in Ayr town centre. The council report presented on 6 November 2025 recommends pivoting from a care village proposal to mixed-use residential development [@southayrshire2025hourstons].
+
+## Site history
+
+- **Hourstons** was a department store that traded for **123 years** before closing in **February 2019** with the loss of 81 jobs
+- The adjacent **Arran Mall** shopping centre was largely emptied by 2022; subsequently purchased by South Ayrshire Council
+- Combined site: approximately **5,800 m2** (2,600 m2 Hourstons + 3,200 m2 from Arran Mall demolition)
+- The Hourstons building is **Category C listed** --- the original facade must be retained
+
+## Failed plans --- a case study in institutional churn
+
+This site illustrates the difficulty of town centre regeneration when plans keep changing:
+
+1. **Pre-2022 (SNP-led council):** Convert to a new swimming pool and leisure centre. A design firm was appointed by 2021.
+2. **Post-2022 (Conservative-led council):** Leisure centre plans scrapped. Replaced with a **"Living Well Village"** --- a care village with residential care, affordable housing, a day centre, and relocated NHS/HSCP offices. Phase 1 costed at GBP 20 million.
+3. **November 2025:** Care village declared **no longer viable due to lack of funding**. Pivot to mixed-use residential development and potential disposal on the open market.
+
+Three different plans in six years, none of which has broken ground. The site has deteriorated throughout.
+
+## Current proposal
+
+- Mixed-use residential development, potentially via disposal to a private developer or partnership arrangement
+- A detailed report on residential options and tenure types is expected by **March 2026**
+- Planning officers recommended reallocation of **GBP 11.26 million** for the site
+
+## Policy significance
+
+This is the site Ian (community councillor) flagged as being "disposed of" to residential developers. It crystallises the central policy tension in this project:
+
+- **Residential conversion** would bring people into the town centre (supporting footfall) but would reduce the stock of commercial/civic space and may not address the root causes of decline
+- **Commercial/civic use** (the original leisure centre or care village proposals) would create destination footfall but has repeatedly proven unaffordable
+- The **residential pivot** is explicitly framed by the council as a strategy to increase town centre living and footfall, recognising that attracting new retail tenants is no longer realistic
+
+The failure of three successive plans over six years --- and the progressive deterioration of a prominent town-centre site --- is itself evidence of the vicious cycle this project hypothesises. The longer a prime site sits vacant, the harder it becomes to attract investment, and the more the surrounding area declines.
+
+The site falls within the **Pride in Place** programme area (see [Pride in Place summary](ref-pride-in-place.qmd)), which may open new funding routes for a mixed-use rather than purely residential scheme.
+
+## References

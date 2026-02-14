@@ -18,7 +18,8 @@ The core hypothesis is a vicious cycle: poor access/infrastructure → reduced f
 ├── docs/                  # Narrative documents (background, briefs, reports)
 │   └── background.qmd    # Project brief, theory of change, aims, data sources
 ├── analysis/              # Data analysis Quarto notebooks (.qmd)
-│   └── demographic-comparison.qmd  # Council area demographic comparison
+│   ├── demographic-comparison.qmd  # Council area demographic comparison
+│   └── simd-ayr-town-centre.qmd   # SIMD deprivation analysis at datazone level
 ├── data/
 │   ├── raw/               # Raw downloaded data (Excel, CSV) — gitignored by default
 │   └── processed/         # Cleaned/derived datasets
@@ -29,8 +30,11 @@ The core hypothesis is a vicious cycle: poor access/infrastructure → reduced f
 │   └── pptx/
 └── R/                     # Reusable R functions and scripts
     ├── fetch_population_data.R   # Download & cache NRS population estimates
+    ├── fetch_simd_data.R         # Download & cache SIMD 2020v2 + datazone boundaries
     ├── calculate_indicators.R    # Demographic indicators, rankings, similarity
-    └── plot_demographics.R       # Population pyramids, comparison charts
+    ├── calculate_simd.R          # SIMD spatial joins, focus areas, Moran's I
+    ├── plot_demographics.R       # Population pyramids, comparison charts
+    └── plot_simd.R               # SIMD choropleths, LISA maps, Leaflet reference map
 ```
 
 ## Technology stack
@@ -50,15 +54,45 @@ The core hypothesis is a vicious cycle: poor access/infrastructure → reduced f
 - Rendered outputs go to `_outputs/` and are gitignored (regenerable via `quarto render`)
 - Quarto project config is in `_quarto.yml` at root
 
-## Data pipeline
+## Data pipelines
 
+### Demographics (NRS population estimates)
 - NRS mid-year population estimates (single year of age, by sex, all 32 council areas + Scotland)
 - Downloaded from nrscotland.gov.uk as Excel, cached as CSV in `data/processed/`
 - `get_population_data()` handles download + caching automatically
 - South Ayrshire code: `S12000028`, Scotland code: `S92000003`
 
+### SIMD 2020v2 (deprivation at datazone level)
+- SIMD 2020v2 from gov.scot: 3 Excel files (ranks, indicators, lookup) merged into 6,976 datazones × 63 columns
+- 2011 datazone boundary shapefile from gov.scot (~20 MB)
+- `get_simd_data()` downloads Excel files, merges, and caches as CSV
+- `get_dz_boundaries()` downloads shapefile ZIP, extracts, reads via `sf::st_read()`
+- 7 domains: Income, Employment, Health, Education, Access, Crime, Housing
+- South Ayrshire has 153 datazones (2011 basis)
+
+### Scottish statistical geographies (reference)
+| Level | 2011 basis | 2022 basis |
+|-------|-----------|-----------|
+| Council areas | 32 | 32 |
+| Health boards | 14 | 14 |
+| HSCPs | 31 | 31 |
+| Intermediate zones | 1,279 | 1,334 |
+| Data zones | 6,976 | 7,392 |
+| Output areas | 46,351 | 46,363 |
+
 ## Current status
 
 - **Done**: Project brief with theory of change (`docs/background.qmd`); demographic comparison analysis (`analysis/demographic-comparison.qmd`) with population pyramids, indicator rankings, and council area similarity analysis
 - **Key finding**: South Ayrshire median age 49.2 (Scotland: 41.8), ranks 5th oldest. Most similar areas: Scottish Borders, Dumfries & Galloway, Na h-Eileanan Siar
-- **Next steps**: Population trends over time, migration flows, economic indicators (vacancy rates, footfall), Census 2022 deep dive
+- **In progress**: SIMD 2020v2 deprivation analysis at datazone level (`analysis/simd-ayr-town-centre.qmd`) — R pipeline built, awaiting user-defined datazone tiers for Ayr town centre and wider Ayr area
+
+## Planned analyses
+
+1. **Sociodemographic profile** (in progress) — SIMD 2020v2 deprivation at datazone level, choropleth maps, domain profiles, Moran's I spatial clustering
+2. **Urban accessibility** — transport routes, road network, parking, public transport access to Ayr town centre
+3. **Local economy** — business counts, vacancy rates, sectoral employment, footfall data
+
+## Key references
+
+- Pride in Place Programme: £20m over 10 years for "Northern Ayr and Town Centre Regeneration Corridor" (`@ukgov2025prideinplace`)
+- Burns Statue Square Redevelopment: £16m Levelling Up Fund + £2m ward fund for pedestrianisation and A70 realignment (`@southayrshire2025burnsstatue`)

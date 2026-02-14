@@ -1,0 +1,41 @@
+---
+title: "Pride in Place Programme"
+subtitle: "Reference Summary"
+bibliography: ../refs/references.bib
+format:
+  html:
+    embed-resources: true
+---
+
+## Overview
+
+The **Pride in Place Programme** is a major UK Government regeneration initiative announced in 2025, providing up to **GBP 20 million per neighbourhood over 10 years** to areas experiencing both high deprivation and weak social infrastructure [@ukgov2025prideinplace]. Nearly 250 neighbourhoods across Great Britain have been selected.
+
+## Relevance to Ayr
+
+South Ayrshire is one of 14 Scottish local authorities selected. The designated neighbourhood is the **"Northern Ayr and Town Centre Regeneration Corridor"** --- directly encompassing the area this project is investigating.
+
+## Programme structure
+
+- Funding is governed by locally established **Neighbourhood Boards** comprising community representatives, councillors, and local MPs
+- Boards develop **10-year Regeneration Plans** and decide how investment is spent
+- Funding begins from **April 2026**
+
+## Eligible activities
+
+- Revitalising high streets and town centres
+- Preserving heritage
+- Providing housing
+- Creating jobs
+- Improving transport links
+- Boosting health and wellbeing
+
+## Selection criteria
+
+Neighbourhoods were selected based on the **Index of Multiple Deprivation** (IMD) and the **Community Needs Index**, confirming that the Ayr North area is among the most deprived in Scotland with the weakest social infrastructure.
+
+## Policy significance
+
+This is a substantial funding commitment that creates both an opportunity and a constraint for Ayr town centre planning. The programme's three strategic aims --- stronger communities, thriving places, empowered residents --- align closely with the theory of change outlined in this project (see [background](background.qmd)). Any redevelopment proposals for the town centre should be considered in the context of this funding stream.
+
+## References

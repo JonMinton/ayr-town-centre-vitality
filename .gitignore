@@ -10,6 +10,11 @@ _outputs/
 data/raw/*.xlsx
 data/raw/*.csv
 data/raw/*.xls
+data/raw/*.zip
+data/raw/SG_SIMD_2016/
+data/raw/SG_DataZoneBdry_2011/
+data/processed/*.csv
+analysis/data/
 
 # OS files
 .DS_Store

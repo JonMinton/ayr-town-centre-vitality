@@ -1,0 +1,38 @@
+---
+title: "Burns Statue Square Redevelopment"
+subtitle: "Reference Summary"
+bibliography: ../refs/references.bib
+format:
+  html:
+    embed-resources: true
+---
+
+## Overview
+
+South Ayrshire Council has secured **GBP 16 million** from the UK Government Levelling Up Fund, plus **GBP 2 million** from the Ayr West Ward capital fund, for the comprehensive redevelopment of Burns Statue Square in Ayr town centre [@southayrshire2025burnsstatue].
+
+## Scope of works
+
+The project encompasses three themes:
+
+1. **Physical regeneration** of the square into an enlarged pedestrian public space extending from Station Road to Smith Street, with new event areas, seating, planting, and information points
+2. **Shopfront improvement scheme** for town-centre businesses
+3. **Active travel route** linking the town centre to Prestwick Airport
+
+## Key infrastructure change
+
+The critical element is the **realignment of the A70 road**, which currently separates Burns Statue Square from Ayr Railway Station. This would create a contiguous pedestrian zone between the station and the town centre. Some surrounding streets are proposed to become one-way to accommodate redirected traffic.
+
+## Timeline
+
+- Public consultations: 2025--2026
+- Construction target: **summer 2026**
+- Projected build programme: **two years** (completion circa 2028)
+
+## Policy significance
+
+This is the most significant planned intervention in Ayr town centre's physical infrastructure. The A70 realignment directly addresses the "poor access" element of the vicious cycle identified in this project's theory of change (see [background](background.qmd)). By improving the connection between Ayr Railway Station and the town centre, it could meaningfully increase pedestrian footfall. The shopfront improvement scheme addresses visual amenity and business viability simultaneously.
+
+The timing is notable: construction overlaps with the start of the Pride in Place programme funding (see [Pride in Place summary](ref-pride-in-place.qmd)), creating a concentrated period of investment in the town centre.
+
+## References

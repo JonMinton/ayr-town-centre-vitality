@@ -1,7 +1,9 @@
 ---
 title: "Demographic Profile of South Ayrshire"
 subtitle: "Comparison with Scottish Council Areas"
-format: html
+format:
+  html:
+    embed-resources: true
 execute:
   echo: false
   warning: false
