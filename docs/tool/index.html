@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ayr Datazone Selection Tool</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; height: 100vh; display: flex; flex-direction: column; }
+
+    /* Header */
+    #header { background: #2c3e50; color: white; padding: 10px 20px; flex-shrink: 0; }
+    #header h1 { font-size: 1.2em; margin-bottom: 4px; }
+    #header p { font-size: 0.85em; opacity: 0.85; }
+
+    /* Main layout */
+    #main { display: flex; flex: 1; min-height: 0; }
+
+    /* Sidebar */
+    #sidebar { width: 320px; background: #f8f9fa; border-right: 1px solid #ddd; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
+    #sidebar .section { padding: 12px 16px; border-bottom: 1px solid #e0e0e0; }
+    #sidebar h3 { font-size: 0.9em; color: #555; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    #sidebar label { display: block; font-size: 0.85em; margin-bottom: 4px; color: #333; }
+    #sidebar input[type="text"] { width: 100%; padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9em; }
+
+    /* Tier toggle */
+    .tier-toggle { display: flex; gap: 0; margin-bottom: 8px; }
+    .tier-btn { flex: 1; padding: 8px 4px; border: 2px solid #ccc; background: white; cursor: pointer; text-align: center; font-size: 0.8em; font-weight: 600; transition: all 0.15s; }
+    .tier-btn:first-child { border-radius: 4px 0 0 4px; }
+    .tier-btn:last-child { border-radius: 0 4px 4px 0; }
+    .tier-btn.active-tc { border-color: #c0392b; background: #c0392b; color: white; }
+    .tier-btn.active-wa { border-color: #2980b9; background: #2980b9; color: white; }
+    .tier-btn:not(.active-tc):not(.active-wa):hover { background: #eee; }
+
+    /* Selection lists */
+    .dz-list { max-height: 200px; overflow-y: auto; }
+    .dz-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; margin: 2px 0; border-radius: 3px; font-size: 0.8em; }
+    .dz-item.tc { background: #f8d7da; border-left: 3px solid #c0392b; }
+    .dz-item.wa { background: #d6eaf8; border-left: 3px solid #2980b9; }
+    .dz-item .dz-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .dz-item .dz-remove { background: none; border: none; cursor: pointer; color: #999; font-size: 1.1em; padding: 0 4px; }
+    .dz-item .dz-remove:hover { color: #c0392b; }
+    .dz-count { font-size: 0.8em; color: #666; margin-bottom: 4px; }
+
+    /* Buttons */
+    .btn { display: block; width: 100%; padding: 10px; border: none; border-radius: 4px; font-size: 0.9em; font-weight: 600; cursor: pointer; margin-bottom: 6px; transition: opacity 0.15s; }
+    .btn:hover { opacity: 0.85; }
+    .btn-save { background: #27ae60; color: white; }
+    .btn-export { background: #7f8c8d; color: white; }
+    .btn-clear { background: #e74c3c; color: white; font-size: 0.8em; padding: 6px; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Status message */
+    #status { padding: 8px 12px; font-size: 0.8em; text-align: center; display: none; }
+    #status.success { display: block; background: #d5f5e3; color: #1e8449; }
+    #status.error { display: block; background: #fadbd8; color: #922b21; }
+    #status.info { display: block; background: #d6eaf8; color: #21618c; }
+
+    /* Map */
+    #map { flex: 1; min-height: 0; }
+
+    /* Legend */
+    .legend { background: white; padding: 8px 12px; border-radius: 4px; box-shadow: 0 1px 5px rgba(0,0,0,0.3); line-height: 1.6; font-size: 0.8em; }
+    .legend i { width: 14px; height: 14px; display: inline-block; margin-right: 6px; vertical-align: middle; border: 1px solid #999; }
+    .legend .legend-title { font-weight: bold; margin-bottom: 4px; }
+
+    /* Google Sheet config */
+    #config-section { background: #fff3cd; }
+    #config-section input { font-family: monospace; font-size: 0.75em; }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      #main { flex-direction: column; }
+      #sidebar { width: 100%; max-height: 40vh; border-right: none; border-bottom: 1px solid #ddd; }
+      #map { min-height: 50vh; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <h1>Ayr Town Centre Datazone Selection</h1>
+  <p>Click datazones on the map to assign them to "Town Centre" or "Wider Ayr" tiers. Selections are saved in your browser automatically.</p>
+</div>
+
+<div id="main">
+  <div id="sidebar">
+    <div class="section">
+      <h3>Your name</h3>
+      <input type="text" id="respondent" placeholder="e.g. Ian" />
+    </div>
+
+    <div class="section">
+      <h3>Selection mode</h3>
+      <div class="tier-toggle">
+        <button class="tier-btn active-tc" id="btn-tc" onclick="setTier('tc')">Town Centre</button>
+        <button class="tier-btn" id="btn-wa" onclick="setTier('wa')">Wider Ayr</button>
+      </div>
+      <p style="font-size:0.78em; color:#666;">Click a datazone on the map to assign it to the active tier. Click again to remove.</p>
+    </div>
+
+    <div class="section">
+      <h3>Town Centre <span class="dz-count" id="tc-count">(0 selected)</span></h3>
+      <div class="dz-list" id="tc-list"></div>
+    </div>
+
+    <div class="section">
+      <h3>Wider Ayr <span class="dz-count" id="wa-count">(0 selected)</span></h3>
+      <div class="dz-list" id="wa-list"></div>
+    </div>
+
+    <div class="section" id="config-section">
+      <h3>Google Sheet URL</h3>
+      <label>Paste your Apps Script deployment URL:</label>
+      <input type="text" id="sheet-url" placeholder="https://script.google.com/macros/s/.../exec" />
+      <p style="font-size:0.72em; color:#856404; margin-top:4px;">See setup instructions below the map. Leave blank to use "Export as JSON" only.</p>
+    </div>
+
+    <div class="section">
+      <button class="btn btn-save" id="btn-save" onclick="saveToGoogleSheet()">Save to Google Sheet</button>
+      <button class="btn btn-export" onclick="exportAsJSON()">Export as JSON</button>
+      <button class="btn btn-clear" onclick="clearSelections()">Clear all selections</button>
+    </div>
+
+    <div id="status"></div>
+  </div>
+
+  <div id="map"></div>
+</div>
+
+<script>
+// ---- Configuration ----
+const GEOJSON_PATH = 'sa_datazones.geojson';
+const STORAGE_KEY = 'ayr_dz_selections';
+
+// SIMD decile colour palette (1 = most deprived = dark red, 10 = least deprived = dark blue)
+const DECILE_COLOURS = {
+  1: '#67001f', 2: '#b2182b', 3: '#d6604d', 4: '#f4a582', 5: '#fddbc7',
+  6: '#d1e5f0', 7: '#92c5de', 8: '#4393c3', 9: '#2166ac', 10: '#053061'
+};
+
+// ---- State ----
+let activeTier = 'tc'; // 'tc' or 'wa'
+let townCentreDZs = new Set();
+let widerAyrDZs = new Set();
+let geojsonLayer = null;
+let featuresByDZ = {};  // DataZone code -> layer
+
+// ---- Initialise map ----
+const map = L.map('map').setView([55.462, -4.63], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors',
+  maxZoom: 18
+}).addTo(map);
+
+// ---- Load GeoJSON ----
+fetch(GEOJSON_PATH)
+  .then(r => {
+    if (!r.ok) throw new Error('Failed to load GeoJSON: ' + r.status);
+    return r.json();
+  })
+  .then(data => {
+    geojsonLayer = L.geoJSON(data, {
+      style: featureStyle,
+      onEachFeature: onEachFeature
+    }).addTo(map);
+
+    // Index features by datazone code
+    geojsonLayer.eachLayer(layer => {
+      const dz = layer.feature.properties.DataZone;
+      if (dz) featuresByDZ[dz] = layer;
+    });
+
+    // Fit map to data
+    map.fitBounds(geojsonLayer.getBounds(), { padding: [20, 20] });
+
+    // Restore saved state
+    loadFromStorage();
+    refreshAllStyles();
+    updateLists();
+
+    showStatus('Loaded ' + Object.keys(featuresByDZ).length + ' datazones. Click to select.', 'info');
+    setTimeout(() => hideStatus(), 3000);
+  })
+  .catch(err => {
+    showStatus('Error loading map data: ' + err.message, 'error');
+    console.error(err);
+  });
+
+// ---- Legend ----
+const legend = L.control({ position: 'bottomright' });
+legend.onAdd = function() {
+  const div = L.DomUtil.create('div', 'legend');
+  div.innerHTML = '<div class="legend-title">SIMD 2020v2 Decile</div>';
+  for (let d = 1; d <= 10; d++) {
+    div.innerHTML += '<div><i style="background:' + DECILE_COLOURS[d] + '"></i> ' +
+      d + (d === 1 ? ' (most deprived)' : d === 10 ? ' (least deprived)' : '') + '</div>';
+  }
+  div.innerHTML += '<div style="margin-top:6px; border-top:1px solid #ccc; padding-top:4px;">' +
+    '<div><i style="background:transparent; border:3px solid #c0392b;"></i> Town Centre</div>' +
+    '<div><i style="background:transparent; border:3px solid #2980b9;"></i> Wider Ayr</div></div>';
+  return div;
+};
+legend.addTo(map);
+
+// ---- Styling ----
+function featureStyle(feature) {
+  const decile = feature.properties.SIMD2020v2_Decile || 5;
+  return {
+    fillColor: DECILE_COLOURS[decile] || '#999',
+    fillOpacity: 0.6,
+    color: '#666',
+    weight: 1,
+    opacity: 0.8
+  };
+}
+
+function getSelectionStyle(dz) {
+  if (townCentreDZs.has(dz)) return { color: '#c0392b', weight: 4, opacity: 1 };
+  if (widerAyrDZs.has(dz)) return { color: '#2980b9', weight: 4, opacity: 1 };
+  return { color: '#666', weight: 1, opacity: 0.8 };
+}
+
+function refreshStyle(dz) {
+  const layer = featuresByDZ[dz];
+  if (!layer) return;
+  const sel = getSelectionStyle(dz);
+  layer.setStyle({
+    fillColor: DECILE_COLOURS[layer.feature.properties.SIMD2020v2_Decile || 5] || '#999',
+    fillOpacity: townCentreDZs.has(dz) || widerAyrDZs.has(dz) ? 0.75 : 0.6,
+    color: sel.color,
+    weight: sel.weight,
+    opacity: sel.opacity
+  });
+}
+
+function refreshAllStyles() {
+  Object.keys(featuresByDZ).forEach(refreshStyle);
+}
+
+// ---- Feature interaction ----
+function onEachFeature(feature, layer) {
+  const p = feature.properties;
+  const dz = p.DataZone || 'Unknown';
+  const name = p.DZname || '';
+  const iz = p.IZname || '';
+  const rank = p.SIMD2020v2_Rank || 'N/A';
+  const decile = p.SIMD2020v2_Decile || 'N/A';
+  const pop = p.Population || 'N/A';
+
+  // Tooltip
+  layer.bindTooltip(dz, { sticky: true, className: 'dz-tooltip' });
+
+  // Popup
+  layer.bindPopup(
+    '<strong>' + dz + '</strong><br>' +
+    '<em>' + name + '</em><br>' +
+    'IZ: ' + iz + '<br>' +
+    'SIMD Rank: ' + rank + '/6976<br>' +
+    'Decile: ' + decile + '<br>' +
+    'Population: ' + pop
+  );
+
+  // Click handler
+  layer.on('click', function(e) {
+    L.DomEvent.stopPropagation(e);
+    toggleDatazone(dz);
+  });
+}
+
+// ---- Selection logic ----
+function toggleDatazone(dz) {
+  if (activeTier === 'tc') {
+    if (townCentreDZs.has(dz)) {
+      townCentreDZs.delete(dz);
+    } else {
+      widerAyrDZs.delete(dz); // Remove from other tier
+      townCentreDZs.add(dz);
+    }
+  } else {
+    if (widerAyrDZs.has(dz)) {
+      widerAyrDZs.delete(dz);
+    } else {
+      townCentreDZs.delete(dz); // Remove from other tier
+      widerAyrDZs.add(dz);
+    }
+  }
+  refreshStyle(dz);
+  updateLists();
+  saveToStorage();
+}
+
+function removeDatazone(dz, tier) {
+  if (tier === 'tc') townCentreDZs.delete(dz);
+  else widerAyrDZs.delete(dz);
+  refreshStyle(dz);
+  updateLists();
+  saveToStorage();
+}
+
+function setTier(tier) {
+  activeTier = tier;
+  document.getElementById('btn-tc').className = 'tier-btn' + (tier === 'tc' ? ' active-tc' : '');
+  document.getElementById('btn-wa').className = 'tier-btn' + (tier === 'wa' ? ' active-wa' : '');
+}
+
+function clearSelections() {
+  if (!confirm('Clear all selections? This cannot be undone.')) return;
+  const allDZs = [...townCentreDZs, ...widerAyrDZs];
+  townCentreDZs.clear();
+  widerAyrDZs.clear();
+  allDZs.forEach(refreshStyle);
+  updateLists();
+  saveToStorage();
+  showStatus('Selections cleared.', 'info');
+  setTimeout(() => hideStatus(), 2000);
+}
+
+// ---- Sidebar lists ----
+function updateLists() {
+  updateList('tc-list', townCentreDZs, 'tc');
+  updateList('wa-list', widerAyrDZs, 'wa');
+  document.getElementById('tc-count').textContent = '(' + townCentreDZs.size + ' selected)';
+  document.getElementById('wa-count').textContent = '(' + widerAyrDZs.size + ' selected)';
+}
+
+function updateList(containerId, dzSet, tier) {
+  const container = document.getElementById(containerId);
+  if (dzSet.size === 0) {
+    container.innerHTML = '<p style="font-size:0.78em; color:#999; padding:4px;">None selected</p>';
+    return;
+  }
+  const sorted = [...dzSet].sort();
+  container.innerHTML = sorted.map(dz => {
+    const layer = featuresByDZ[dz];
+    const name = layer ? (layer.feature.properties.DZname || dz) : dz;
+    return '<div class="dz-item ' + tier + '">' +
+      '<span class="dz-name" title="' + dz + ' - ' + name + '">' + dz + ' ' + name + '</span>' +
+      '<button class="dz-remove" onclick="removeDatazone(\'' + dz + '\', \'' + tier + '\')" title="Remove">&times;</button>' +
+      '</div>';
+  }).join('');
+}
+
+// ---- localStorage persistence ----
+function saveToStorage() {
+  const state = {
+    respondent: document.getElementById('respondent').value,
+    sheetUrl: document.getElementById('sheet-url').value,
+    townCentre: [...townCentreDZs],
+    widerAyr: [...widerAyrDZs]
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function loadFromStorage() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+  try {
+    const state = JSON.parse(raw);
+    if (state.respondent) document.getElementById('respondent').value = state.respondent;
+    if (state.sheetUrl) document.getElementById('sheet-url').value = state.sheetUrl;
+    if (state.townCentre) state.townCentre.forEach(dz => townCentreDZs.add(dz));
+    if (state.widerAyr) state.widerAyr.forEach(dz => widerAyrDZs.add(dz));
+  } catch (e) {
+    console.warn('Could not restore saved selections:', e);
+  }
+}
+
+// Save respondent name and sheet URL on change
+document.getElementById('respondent').addEventListener('input', saveToStorage);
+document.getElementById('sheet-url').addEventListener('input', saveToStorage);
+
+// ---- Export as JSON ----
+function exportAsJSON() {
+  const data = buildPayload();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'ayr_datazone_selections_' + (data.respondent || 'unnamed') + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showStatus('JSON file downloaded.', 'success');
+  setTimeout(() => hideStatus(), 3000);
+}
+
+// ---- Save to Google Sheet ----
+async function saveToGoogleSheet() {
+  const scriptUrl = document.getElementById('sheet-url').value.trim();
+  if (!scriptUrl) {
+    showStatus('Please enter a Google Apps Script URL, or use "Export as JSON" instead.', 'error');
+    return;
+  }
+
+  const data = buildPayload();
+  if (!data.respondent) {
+    showStatus('Please enter your name before saving.', 'error');
+    return;
+  }
+  if (data.town_centre.length === 0 && data.wider_ayr.length === 0) {
+    showStatus('No datazones selected. Click datazones on the map first.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+  showStatus('Sending to Google Sheet...', 'info');
+
+  try {
+    const response = await fetch(scriptUrl, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    const result = await response.json();
+
+    if (result.status === 'success') {
+      showStatus('Saved to Google Sheet successfully.', 'success');
+    } else {
+      showStatus('Google Sheet error: ' + (result.message || 'Unknown error'), 'error');
+    }
+  } catch (err) {
+    showStatus('Network error: ' + err.message + '. Try "Export as JSON" instead.', 'error');
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save to Google Sheet';
+  }
+}
+
+function buildPayload() {
+  return {
+    respondent: document.getElementById('respondent').value.trim(),
+    timestamp: new Date().toISOString(),
+    town_centre: [...townCentreDZs].sort(),
+    wider_ayr: [...widerAyrDZs].sort()
+  };
+}
+
+// ---- Status messages ----
+function showStatus(msg, type) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = type;
+}
+function hideStatus() {
+  document.getElementById('status').className = '';
+  document.getElementById('status').style.display = 'none';
+}
+</script>
+
+<!--
+====================================================================
+GOOGLE APPS SCRIPT — Setup Instructions
+====================================================================
+
+To enable the "Save to Google Sheet" feature:
+
+1. Create a new Google Sheet at https://sheets.google.com
+2. Add these headers in row 1: Timestamp | Respondent | Town_Centre_DZs | Wider_Ayr_DZs
+3. Go to Extensions > Apps Script
+4. Delete the default code and paste the script below
+5. Click Deploy > New Deployment
+6. Type: Web App
+7. Execute as: Me
+8. Who has access: Anyone
+9. Click Deploy, then copy the URL
+10. Paste the URL into the "Google Sheet URL" field on this page
+
+=== Apps Script Code (paste into Apps Script editor) ===
+
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
+    if (!sheet) sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+
+    sheet.appendRow([
+      new Date().toISOString(),
+      data.respondent || "",
+      JSON.stringify(data.town_centre || []),
+      JSON.stringify(data.wider_ayr || [])
+    ]);
+
+    return ContentService.createTextOutput(
+      JSON.stringify({ status: "success", message: "Data saved" })
+    ).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService.createTextOutput(
+      JSON.stringify({ status: "error", message: err.message })
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  return ContentService.createTextOutput(
+    JSON.stringify({ status: "ok", message: "Datazone selection sheet is active" })
+  ).setMimeType(ContentService.MimeType.JSON);
+}
+
+====================================================================
+-->
+
+</body>
+</html>

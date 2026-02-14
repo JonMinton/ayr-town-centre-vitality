@@ -2,6 +2,8 @@
 *_files/
 .quarto/
 *.html
+!docs/tool/**/*.html
+!docs/tool/*.html
 
 # Rendered outputs (regenerable)
 _outputs/
