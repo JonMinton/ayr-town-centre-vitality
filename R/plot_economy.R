@@ -133,9 +133,10 @@ plot_top_sectors <- function(employment_df, tier = NULL, top_n = 10,
     theme_minimal(base_size = 12)
 }
 
-#' Radar chart of economic health profile
+#' Faceted bar chart of economic health profile
 #'
-#' Shows normalised indicators as a spider/radar chart using coord_polar.
+#' Shows where each tier's mean falls in the national distribution
+#' of each indicator, as horizontal bars with the 50th percentile marked.
 #'
 #' @param health_df Tibble from calculate_economic_health_profile()
 #' @param title Plot title
@@ -143,44 +144,47 @@ plot_top_sectors <- function(employment_df, tier = NULL, top_n = 10,
 plot_radar_chart <- function(health_df, title = "Economic Health Profile") {
   # Clean indicator names for display
   label_map <- c(
-    "Income_rate" = "Income\nDeprivation",
-    "Employment_rate" = "Employment\nDeprivation",
-    "crime_rate" = "Crime\nRate",
+    "Income_rate" = "Income Deprivation",
+    "Employment_rate" = "Employment Deprivation",
+    "crime_rate" = "Crime Rate",
     "overcrowded_rate" = "Overcrowding",
-    "nocentralheat_rate" = "No Central\nHeating",
-    "CIF" = "Illness\n(CIF)",
-    "ALCOHOL" = "Alcohol\nHospitalisations",
-    "DRUG" = "Drug\nHospitalisations"
+    "nocentralheat_rate" = "No Central Heating",
+    "CIF" = "Illness (CIF)",
+    "ALCOHOL" = "Alcohol Hospitalisations",
+    "DRUG" = "Drug Hospitalisations"
   )
 
   df <- health_df |>
     mutate(indicator_label = ifelse(indicator %in% names(label_map),
                                      label_map[indicator], indicator))
 
-  # For radar chart, all tiers need the same indicator order
-  ind_order <- unique(df$indicator_label)
-  df$indicator_label <- factor(df$indicator_label, levels = ind_order)
+  # Order indicators by worst town centre percentile
+  tc_order <- df |>
+    filter(focus_tier == "Town Centre") |>
+    arrange(desc(national_percentile)) |>
+    pull(indicator_label)
+
+  df$indicator_label <- factor(df$indicator_label, levels = rev(tc_order))
 
   ggplot(df, aes(x = indicator_label, y = national_percentile,
-                  group = focus_tier, colour = focus_tier)) +
-    geom_polygon(aes(fill = focus_tier), alpha = 0.1) +
-    geom_point(size = 2) +
-    geom_line() +
-    scale_colour_manual(values = TIER_PALETTE) +
+                  fill = focus_tier)) +
+    geom_col(position = position_dodge(width = 0.7), width = 0.6) +
+    geom_hline(yintercept = 50, linetype = "dashed", colour = "grey40") +
+    annotate("text", x = 0.5, y = 52, label = "National median",
+             hjust = 0, size = 3, colour = "grey40") +
     scale_fill_manual(values = TIER_PALETTE) +
-    scale_y_continuous(limits = c(0, 100), breaks = c(0, 25, 50, 75, 100)) +
-    coord_polar() +
+    scale_y_continuous(limits = c(0, 100),
+                       breaks = c(0, 25, 50, 75, 100),
+                       labels = c("0", "25", "50", "75", "100")) +
+    coord_flip() +
     labs(
-      title = title,
-      subtitle = "National percentile (higher = worse position)",
-      colour = "Tier", fill = "Tier"
+      x = NULL,
+      y = "National percentile (higher = worse position)",
+      fill = "Tier",
+      title = title
     ) +
-    theme_minimal(base_size = 11) +
-    theme(
-      axis.title = element_blank(),
-      axis.text.y = element_text(size = 8),
-      legend.position = "bottom"
-    )
+    theme_minimal(base_size = 12) +
+    theme(legend.position = "bottom")
 }
 
 #' Scatter plot of two indicators coloured by tier

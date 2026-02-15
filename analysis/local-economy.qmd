@@ -167,7 +167,7 @@ The SIMD indicators, examined in the [deprivation report](simd-ayr-town-centre.q
 health_profile <- calculate_economic_health_profile(simd_all, sa)
 ```
 
-```{r radar-chart, fig.height=7, fig.width=8, fig.cap="Economic health profile by tier. Each axis shows where the tier's mean falls in the national distribution (percentile). Higher values = worse position. The Town Centre and Wider Ayr areas score poorly across most indicators."}
+```{r health-profile-chart, fig.height=6, fig.width=9, fig.cap="Economic health profile by tier. Each bar shows where the tier's mean falls in the national distribution (percentile). Values above the dashed line (50th percentile) indicate a worse position than the national median. The Town Centre and Wider Ayr areas score poorly across most indicators."}
 plot_radar_chart(health_profile,
                   title = "Economic Health Profile: National Percentiles")
 ```

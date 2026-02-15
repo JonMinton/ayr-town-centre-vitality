@@ -6,6 +6,22 @@ library(tidyr)
 library(sf)
 library(here)
 
+#' Coerce SIMD indicator columns from character to numeric
+#'
+#' Some SIMD indicator columns (crime_rate, crime_count, Attendance, Attainment)
+#' are stored as character because they contain '*' suppression markers.
+#' This function converts them to numeric, turning '*' into NA.
+#'
+#' @param df Data frame or sf object with SIMD indicator columns
+#' @return Same object with character indicator columns converted to numeric
+coerce_simd_indicators <- function(df) {
+  char_indicators <- c("crime_rate", "crime_count", "Attendance", "Attainment")
+  for (col in intersect(char_indicators, names(df))) {
+    df[[col]] <- suppressWarnings(as.numeric(df[[col]]))
+  }
+  df
+}
+
 #' Summarise SIMD economic indicators by grouping variable
 #'
 #' Extracts and summarises raw SIMD indicator values (not ranks) relevant
@@ -27,6 +43,7 @@ calculate_economy_indicators <- function(simd_sf, group_var = "focus_tier") {
   available_cols <- intersect(indicator_cols, names(simd_sf))
 
   simd_sf |>
+    coerce_simd_indicators() |>
     st_drop_geometry() |>
     group_by(across(all_of(group_var))) |>
     summarise(
@@ -57,6 +74,7 @@ get_datazone_economy <- function(simd_sf) {
   dz_col <- find_datazone_column(simd_sf)
 
   simd_sf |>
+    coerce_simd_indicators() |>
     st_drop_geometry() |>
     select(
       Data_Zone = all_of(dz_col), DZname, focus_tier,
@@ -150,6 +168,10 @@ calculate_economic_health_profile <- function(simd_all, simd_sf,
     "CIF", "ALCOHOL", "DRUG"
   )
   available <- intersect(indicators, names(simd_all))
+
+  # Coerce character indicator columns to numeric
+  simd_all <- coerce_simd_indicators(simd_all)
+  simd_sf <- coerce_simd_indicators(simd_sf)
 
   # Compute national percentile for each indicator value
   # For deprivation indicators, higher value = worse
