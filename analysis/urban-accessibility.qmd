@@ -173,7 +173,7 @@ The SIMD indicators tell us *how long* it takes to reach services. To understand
 
 ```{r combined-map, fig.height=9}
 plot_combined_infrastructure_map(
-  sa, infra, focus_extent = focus_extent,
+  focus_dzs, infra,
   title = "Transport Infrastructure in Wider Ayr"
 )
 ```
@@ -445,19 +445,21 @@ The evidence in this report supports a clear argument:
 
 ```{mermaid}
 %%| fig-cap: "How accessibility improvements break the vicious cycle"
-flowchart TD
-    A["Burns Statue Square<br/>A70 realignment"] --> B["Barrier removed between<br/>station and town centre"]
-    B --> C["Increased pedestrian footfall"]
-    C --> D["More viable for businesses"]
-    D --> E["Employment retained / created"]
-    E --> F["Town centre attractive<br/>to visitors and investors"]
-    F --> G["Services anchored<br/>in town centre"]
-    G --> H["Reason for residents<br/>to visit town centre"]
+graph TD
+    A[Poor access and infrastructure] --> B[Reduced footfall]
+    B --> C[Business closures and loss of amenities]
+    C --> D[Town centre less attractive]
+    D --> E[Depopulation, especially young families]
+    E --> F[Ageing and shrinking population]
+    F --> G[Weaker economic base]
+    G --> A
 
-    I["Pride in Place<br/>programme"] --> J["Active travel routes<br/>Bus infrastructure"]
-    J --> C
+    H["Burns Statue Square:<br/>A70 realignment and<br/>pedestrian zone"] -.-> A
+    H -.-> B
+    I["Pride in Place:<br/>active travel routes and<br/>bus infrastructure"] -.-> A
+    I -.-> D
 
-    style A fill:#D62828,color:#fff
+    style H fill:#D62828,color:#fff
     style I fill:#003049,color:#fff
 ```
 
