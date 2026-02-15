@@ -227,8 +227,8 @@ kable(morans_display,
 
 ### Moran scatterplot
 
-```{r moran-scatter, fig.height=6, fig.cap="Moran scatterplot for overall SIMD rank. Each point is a datazone; the x-axis shows its own rank, the y-axis shows the average rank of its neighbours. Red points are datazones in the wider Ayr study area. The positive slope confirms that deprivation clusters spatially."}
-plot_moran_scatterplot(sa, "SIMD2020v2_Rank", weights, highlight_dzs = all_focus_dzs)
+```{r moran-scatter, fig.height=6, fig.cap="Moran scatterplot for deprivation (inverted SIMD rank, so high values = more deprived). Each point is a datazone; the x-axis shows its deprivation score, the y-axis shows the average score of its neighbours. Red points are datazones in the wider Ayr study area. The positive slope confirms that deprivation clusters spatially --- deprived areas tend to be surrounded by other deprived areas."}
+plot_moran_scatterplot(sa, "SIMD2020v2_Rank", weights, highlight_dzs = all_focus_dzs, invert = TRUE)
 ```
 
 ### Local clusters (LISA)
@@ -239,8 +239,8 @@ The **Local Indicators of Spatial Association** (LISA) identify which specific d
 - **Low-Low** (cold spots): Affluent datazones surrounded by other affluent datazones
 - **High-Low / Low-High**: Spatial outliers --- a deprived area in an affluent neighbourhood or vice versa
 
-```{r lisa, fig.height=7, fig.cap="LISA cluster map for overall SIMD rank. High-High clusters (red) indicate statistically significant concentrations of deprivation. Low-Low clusters (blue) indicate affluence clusters. Map zoomed to the Wider Ayr study area."}
-sa <- run_local_morans_i(sa, "SIMD2020v2_Rank", weights)
+```{r lisa, fig.height=7, fig.cap="LISA cluster map based on deprivation score (inverted SIMD rank, so high = more deprived). High-High clusters (red) indicate statistically significant concentrations of deprivation. Low-Low clusters (blue) indicate affluence clusters. Map zoomed to the Wider Ayr study area."}
+sa <- run_local_morans_i(sa, "SIMD2020v2_Rank", weights, invert = TRUE)
 
 plot_lisa_clusters(sa, focus_extent = wider_extent)
 ```

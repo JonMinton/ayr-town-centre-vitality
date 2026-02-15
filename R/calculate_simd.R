@@ -164,8 +164,16 @@ run_global_morans_i <- function(simd_sf, variable, weights) {
 #' @param weights listw object from build_spatial_weights()
 #' @param p_threshold Significance threshold for cluster classification
 #' @return sf object augmented with LISA statistics and cluster classification
-run_local_morans_i <- function(simd_sf, variable, weights, p_threshold = 0.05) {
+run_local_morans_i <- function(simd_sf, variable, weights, p_threshold = 0.05,
+                               invert = FALSE) {
   x <- simd_sf[[variable]]
+
+  # For rank-based variables where low rank = high deprivation, invert so that
+
+  # high values = high deprivation. This ensures HH clusters = deprivation hot spots.
+  if (invert) {
+    x <- max(x, na.rm = TRUE) + 1 - x
+  }
 
   lisa <- localmoran(x, weights, zero.policy = TRUE, na.action = na.omit)
 
@@ -174,7 +182,7 @@ run_local_morans_i <- function(simd_sf, variable, weights, p_threshold = 0.05) {
   simd_sf$lisa_z <- lisa[, "Z.Ii"]
   simd_sf$lisa_p <- lisa[, "Pr(z != E(Ii))"]
 
-  # Classify into cluster types
+  # Classify into cluster types based on (possibly inverted) values
   x_mean <- mean(x, na.rm = TRUE)
   lagged <- lag.listw(weights, x, zero.policy = TRUE)
   lagged_mean <- mean(lagged, na.rm = TRUE)

@@ -337,9 +337,22 @@ plot_lisa_clusters <- function(simd_sf, lisa_column = "lisa_cluster",
 #' @param highlight_dzs Optional datazone codes to highlight
 #' @return ggplot object
 plot_moran_scatterplot <- function(simd_sf, variable, weights,
-                                    highlight_dzs = NULL) {
+                                    highlight_dzs = NULL, invert = FALSE) {
   dz_col <- find_datazone_column(simd_sf)
   x <- simd_sf[[variable]]
+
+  # Invert rank so high values = high deprivation (matching LISA convention)
+  if (invert) {
+    x <- max(x, na.rm = TRUE) + 1 - x
+    x_label <- "Deprivation score (inverted rank)"
+    lag_label <- "Spatially lagged deprivation score"
+    plot_title <- "Moran Scatterplot: Deprivation (inverted SIMD rank)"
+  } else {
+    x_label <- variable
+    lag_label <- paste0("Spatially lagged ", variable)
+    plot_title <- paste0("Moran Scatterplot: ", gsub("_", " ", variable))
+  }
+
   lagged <- lag.listw(weights, x, zero.policy = TRUE)
 
   plot_df <- data.frame(
@@ -373,10 +386,10 @@ plot_moran_scatterplot <- function(simd_sf, variable, weights,
     annotate("text", x = min(x, na.rm = TRUE), y = max(lagged, na.rm = TRUE),
              label = "LH", hjust = 0, vjust = 1, fontface = "bold", colour = "#92C5DE") +
     labs(
-      title = paste0("Moran Scatterplot: ", gsub("_", " ", variable)),
-      subtitle = "Variable vs. spatially lagged value | Red points = focus datazones",
-      x = variable,
-      y = paste0("Spatially lagged ", variable)
+      title = plot_title,
+      subtitle = "HH = deprivation hot spot | LL = affluence cluster | Red points = focus datazones",
+      x = x_label,
+      y = lag_label
     ) +
     theme_minimal() +
     theme(panel.grid.minor = element_blank())
