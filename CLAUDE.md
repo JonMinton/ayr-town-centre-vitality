@@ -84,7 +84,14 @@ The core hypothesis is a vicious cycle: poor access/infrastructure → reduced f
 
 - **Done**: Project brief with theory of change (`docs/background.qmd`); demographic comparison analysis (`analysis/demographic-comparison.qmd`) with population pyramids, indicator rankings, and council area similarity analysis
 - **Key finding**: South Ayrshire median age 49.2 (Scotland: 41.8), ranks 5th oldest. Most similar areas: Scottish Borders, Dumfries & Galloway, Na h-Eileanan Siar
-- **In progress**: SIMD 2020v2 deprivation analysis at datazone level (`analysis/simd-ayr-town-centre.qmd`) — R pipeline built, awaiting user-defined datazone tiers for Ayr town centre and wider Ayr area
+- **In progress**: SIMD 2020v2 deprivation analysis at datazone level (`analysis/simd-ayr-town-centre.qmd`) — R pipeline built, Ian's tier definitions received, ready for Phase B
+
+### Study area tiers (defined by community councillor Ian MacLeod)
+
+- **Town Centre** (2 datazones): S01012481, S01012483 — defined by walkability from parking (~3-4 min walk to shops). Boundary = roads that convey fast traffic, beyond which the area feels "dormitory" not town centre.
+- **Wider Ayr** (54 datazones): S01012451–S01012511 (with gaps) — defined by catchment gravity (residents who would shop in Ayr rather than Prestwick). Includes south of river (proximity) and NE deprived zones (bus-dependent).
+- **All South Ayrshire** (153 datazones) — used for spatial autocorrelation (Moran's I) analysis.
+- Source files: `refs/ian-datazone-specs/town_centre.json`, `refs/ian-datazone-specs/wider_ayr.json`
 
 ## Planned analyses
 

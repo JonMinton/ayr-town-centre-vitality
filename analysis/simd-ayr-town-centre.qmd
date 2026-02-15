@@ -1,0 +1,297 @@
+---
+title: "Deprivation in Ayr Town Centre"
+subtitle: "SIMD 2020v2 Analysis at Datazone Level"
+bibliography: ../refs/references.bib
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+    fig-width: 10
+    fig-height: 8
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE, warning = FALSE, message = FALSE,
+  fig.retina = 2, dpi = 150
+)
+
+library(here)
+library(dplyr)
+library(tidyr)
+library(sf)
+library(spdep)
+library(ggplot2)
+library(knitr)
+library(jsonlite)
+library(scales)
+
+source(here("R", "fetch_simd_data.R"))
+source(here("R", "calculate_simd.R"))
+source(here("R", "plot_simd.R"))
+```
+
+```{r load-data}
+# Load SIMD data and boundaries
+simd <- get_simd_data()
+boundaries <- get_dz_boundaries(council_area = "South Ayrshire", simd_df = simd)
+
+# Prepare spatial dataset
+sa <- prepare_simd_spatial(simd, boundaries)
+
+# Load Ian's tier definitions
+tc_json <- fromJSON(here("refs", "ian-datazone-specs", "town_centre.json"))
+wa_json <- fromJSON(here("refs", "ian-datazone-specs", "wider_ayr.json"))
+town_centre_dzs <- tc_json$town_centre
+wider_ayr_dzs <- wa_json$wider_ayr
+
+# Classify into tiers
+sa <- classify_focus_area(sa, town_centre_dzs = town_centre_dzs, wider_ayr_dzs = wider_ayr_dzs)
+
+# Bounding box for Wider Ayr (for zoomed maps)
+wider_extent <- st_bbox(sa[sa$focus_tier %in% c("Town Centre", "Wider Ayr"), ])
+
+# All focus datazones combined
+all_focus_dzs <- c(town_centre_dzs, wider_ayr_dzs)
+```
+
+## Introduction
+
+The **Scottish Index of Multiple Deprivation** (SIMD 2020v2) is the Scottish Government's official measure of area-level deprivation. It combines 7 domains --- Income, Employment, Health, Education, Access to Services, Crime, and Housing --- into a single overall ranking of all 6,976 datazones in Scotland. A datazone is a small area geography containing roughly 500--1,000 residents.
+
+This analysis examines deprivation patterns **at datazone level** in and around Ayr town centre. Rather than treating South Ayrshire as a single unit (as in the [demographic comparison](demographic-comparison.qmd)), we look at variation *within* the area --- identifying which streets and neighbourhoods face the most concentrated disadvantage, which domains drive that disadvantage, and whether deprivation clusters spatially.
+
+The study area tiers were defined by Ian MacLeod, community councillor for Ayr, based on local knowledge of how the town centre functions in practice.
+
+## Study area
+
+```{r study-area-map, fig.height=7, fig.cap="South Ayrshire datazones classified into three tiers. Town Centre (red) = the core walkable retail/hospitality zone. Wider Ayr (pink) = the natural catchment area for Ayr town centre. Grey = rest of South Ayrshire."}
+plot_study_area(sa)
+```
+
+The three tiers are:
+
+- **Town Centre** (`r length(town_centre_dzs)` datazones): The core of Ayr's retail and hospitality area, defined by walking proximity from parking --- the area where parking puts you within 3--4 minutes' walk of shops. Beyond this boundary, the character shifts to residential "dormitory" streets separated by fast traffic roads with few pedestrian crossings.
+
+- **Wider Ayr** (`r sum(sa$focus_tier == "Wider Ayr")` datazones): The natural catchment area whose residents would gravitate to Ayr town centre rather than Prestwick's competing high street to the north. This includes areas south of the River Ayr (by proximity) and north-eastern deprived areas whose residents are more bus-dependent.
+
+- **Rest of South Ayrshire** (`r sum(sa$focus_tier == "Rest of South Ayrshire")` datazones): The remainder of the council area, including Prestwick, Troon, Maybole, and rural areas.
+
+```{r study-area-table}
+tier_summary <- sa |>
+  st_drop_geometry() |>
+  group_by(focus_tier) |>
+  summarise(
+    Datazones = n(),
+    Population = sum(Population, na.rm = TRUE),
+    `Working Age` = sum(Working_Age_Population, na.rm = TRUE),
+    `Mean SIMD Rank` = round(mean(SIMD2020v2_Rank, na.rm = TRUE)),
+    `Median SIMD Rank` = median(SIMD2020v2_Rank, na.rm = TRUE),
+    `Mean Decile` = round(mean(SIMD2020v2_Decile, na.rm = TRUE), 1),
+    .groups = "drop"
+  )
+
+kable(tier_summary, caption = "Summary statistics by study area tier (rank 1 = most deprived nationally)")
+```
+
+## Overall deprivation
+
+### Choropleth: SIMD decile across Wider Ayr
+
+```{r decile-choropleth-zoomed, fig.height=7, fig.cap="SIMD 2020v2 decile by datazone, zoomed to the Wider Ayr study area. Decile 1 (dark red) = among the 10% most deprived datazones in Scotland. Bold red outlines mark the town centre datazones."}
+plot_simd_choropleth(
+  sa,
+  variable = "SIMD2020v2_Decile",
+  focus_extent = wider_extent,
+  highlight_dzs = town_centre_dzs,
+  title = "SIMD 2020v2 Decile: Ayr and Surrounds"
+)
+```
+
+```{r decile-choropleth-full, fig.height=6, fig.cap="SIMD 2020v2 decile across all of South Ayrshire, providing wider context."}
+plot_simd_choropleth(
+  sa,
+  variable = "SIMD2020v2_Decile",
+  highlight_dzs = town_centre_dzs,
+  title = "SIMD 2020v2 Decile: All South Ayrshire"
+)
+```
+
+### National context
+
+```{r national-context, fig.height=4, fig.cap="Distribution of all 6,976 SIMD ranks nationally. Red marks show where Ayr's wider study area datazones fall. Marks clustered to the left indicate datazones that are among the most deprived in Scotland."}
+plot_simd_national_context(simd, focus_datazones = all_focus_dzs)
+```
+
+```{r town-centre-detail}
+dz_col <- find_datazone_column(sa)
+tc_detail <- sa |>
+  st_drop_geometry() |>
+  filter(.data[[dz_col]] %in% town_centre_dzs) |>
+  select(
+    all_of(dz_col), DZname, IZname, Population, Working_Age_Population,
+    SIMD2020v2_Rank, SIMD2020v2_Decile
+  )
+
+kable(tc_detail,
+      caption = "Town centre datazones: SIMD 2020v2 detail",
+      col.names = c("Datazone", "Name", "Intermediate Zone", "Population",
+                     "Working Age", "SIMD Rank (/6976)", "Decile"))
+```
+
+## Domain profiles
+
+The overall SIMD rank combines seven constituent domains. Different areas can have the same overall deprivation level but for very different reasons --- a town centre might score poorly on Crime and Housing but well on Access to Services, while a rural area might show the reverse pattern. Understanding *which* domains drive deprivation is critical for targeting interventions.
+
+### Faceted domain maps
+
+```{r domain-facets, fig.height=10, fig.width=12, fig.cap="SIMD 2020v2 domain ranks converted to deciles, mapped across the Wider Ayr study area. Each panel shows one of the seven domains. Domain decile 1 (dark red) = among the 10% most deprived nationally for that domain."}
+plot_domain_choropleth_facets(sa, focus_extent = wider_extent)
+```
+
+### Domain comparison across tiers
+
+```{r domain-summary}
+domain_summary <- calculate_domain_summary(sa, group_var = "focus_tier")
+```
+
+```{r domain-profile-chart, fig.height=5, fig.cap="Mean domain rank by study area tier. Lower values = more deprived. The Town Centre and Wider Ayr areas show markedly lower ranks (greater deprivation) than the rest of South Ayrshire across most domains."}
+plot_domain_profile(domain_summary, stat = "mean")
+```
+
+```{r domain-table}
+domain_wide <- domain_summary |>
+  filter(stat == "mean") |>
+  mutate(
+    domain_short = gsub("SIMD2020v2?_|_Domain_Rank", "", domain),
+    domain_short = gsub("_", " ", domain_short),
+    value = round(value)
+  ) |>
+  select(focus_tier, domain_short, value) |>
+  pivot_wider(names_from = focus_tier, values_from = value)
+
+kable(domain_wide,
+      caption = "Mean domain rank by tier (lower = more deprived; national midpoint = 3,488)",
+      col.names = c("Domain", "Town Centre", "Wider Ayr", "Rest of SA"))
+```
+
+## Spatial clustering
+
+Deprivation is not distributed randomly across space. If deprived areas tend to cluster together, this creates compounding disadvantage --- residents of a deprived datazone surrounded by other deprived datazones face a concentration effect that isolated pockets of deprivation do not.
+
+We test for spatial clustering using **Moran's I**, a standard measure of spatial autocorrelation. A positive Moran's I indicates that similar values cluster together (deprived near deprived, affluent near affluent). We run both a *global* test (is there clustering across all of South Ayrshire?) and a *local* test (which specific datazones are part of significant clusters?).
+
+```{r spatial-weights}
+# Build spatial weights for all South Ayrshire
+weights <- build_spatial_weights(sa)
+```
+
+### Global Moran's I
+
+```{r global-morans}
+# Test on overall rank and key domain ranks
+test_vars <- c(
+  "SIMD2020v2_Rank",
+  "SIMD2020v2_Income_Domain_Rank",
+  "SIMD2020_Employment_Domain_Rank",
+  "SIMD2020_Health_Domain_Rank",
+  "SIMD2020_Education_Domain_Rank",
+  "SIMD2020_Access_Domain_Rank",
+  "SIMD2020_Crime_Domain_Rank",
+  "SIMD2020_Housing_Domain_Rank"
+)
+
+# Only test variables that exist
+test_vars <- intersect(test_vars, names(sa))
+
+morans_results <- bind_rows(lapply(test_vars, function(v) {
+  run_global_morans_i(sa, v, weights)
+}))
+
+morans_display <- morans_results |>
+  mutate(
+    variable = gsub("SIMD2020v2?_|_Domain_Rank|_Rank", "", variable),
+    variable = gsub("_", " ", variable),
+    variable = ifelse(variable == "SIMD2020v2", "Overall", variable),
+    morans_i = round(morans_i, 3),
+    z_score = round(z_score, 2),
+    p_value = ifelse(p_value < 0.001, "< 0.001", round(p_value, 4)),
+    significant = ifelse(as.numeric(ifelse(p_value == "< 0.001", 0, p_value)) < 0.05, "Yes", "No")
+  ) |>
+  select(Variable = variable, `Moran's I` = morans_i, `Z-score` = z_score,
+         `p-value` = p_value, Significant = significant)
+
+kable(morans_display,
+      caption = "Global Moran's I test for spatial autocorrelation across South Ayrshire datazones")
+```
+
+### Moran scatterplot
+
+```{r moran-scatter, fig.height=6, fig.cap="Moran scatterplot for overall SIMD rank. Each point is a datazone; the x-axis shows its own rank, the y-axis shows the average rank of its neighbours. Red points are datazones in the wider Ayr study area. The positive slope confirms that deprivation clusters spatially."}
+plot_moran_scatterplot(sa, "SIMD2020v2_Rank", weights, highlight_dzs = all_focus_dzs)
+```
+
+### Local clusters (LISA)
+
+The **Local Indicators of Spatial Association** (LISA) identify which specific datazones are part of statistically significant clusters:
+
+- **High-High** (hot spots): Deprived datazones surrounded by other deprived datazones --- concentrated disadvantage
+- **Low-Low** (cold spots): Affluent datazones surrounded by other affluent datazones
+- **High-Low / Low-High**: Spatial outliers --- a deprived area in an affluent neighbourhood or vice versa
+
+```{r lisa, fig.height=7, fig.cap="LISA cluster map for overall SIMD rank. High-High clusters (red) indicate statistically significant concentrations of deprivation. Low-Low clusters (blue) indicate affluence clusters. Map zoomed to the Wider Ayr study area."}
+sa <- run_local_morans_i(sa, "SIMD2020v2_Rank", weights)
+
+plot_lisa_clusters(sa, focus_extent = wider_extent)
+```
+
+```{r lisa-full, fig.height=6, fig.cap="LISA cluster map across all of South Ayrshire, providing context for how Ayr's clusters relate to the wider council area."}
+plot_lisa_clusters(sa)
+```
+
+```{r lisa-summary}
+lisa_by_tier <- sa |>
+  st_drop_geometry() |>
+  count(focus_tier, lisa_cluster) |>
+  pivot_wider(names_from = lisa_cluster, values_from = n, values_fill = 0)
+
+kable(lisa_by_tier,
+      caption = "Number of datazones in each LISA cluster type, by study area tier")
+```
+
+## Key findings
+
+```{r compute-findings}
+tc_mean_rank <- mean(sa$SIMD2020v2_Rank[sa$focus_tier == "Town Centre"], na.rm = TRUE)
+tc_mean_decile <- mean(sa$SIMD2020v2_Decile[sa$focus_tier == "Town Centre"], na.rm = TRUE)
+wa_mean_rank <- mean(sa$SIMD2020v2_Rank[sa$focus_tier == "Wider Ayr"], na.rm = TRUE)
+wa_mean_decile <- mean(sa$SIMD2020v2_Decile[sa$focus_tier == "Wider Ayr"], na.rm = TRUE)
+rest_mean_rank <- mean(sa$SIMD2020v2_Rank[sa$focus_tier == "Rest of South Ayrshire"], na.rm = TRUE)
+wa_pct_bottom20 <- mean(sa$SIMD2020v2_Decile[sa$focus_tier == "Wider Ayr"] <= 2, na.rm = TRUE) * 100
+n_hh <- sum(sa$lisa_cluster == "High-High" & sa$focus_tier %in% c("Town Centre", "Wider Ayr"), na.rm = TRUE)
+```
+
+1. **The town centre is severely deprived.** The two town centre datazones have a mean SIMD rank of `r round(tc_mean_rank)` out of 6,976 (decile `r round(tc_mean_decile, 1)`), placing them among the most deprived areas in Scotland.
+
+2. **The wider catchment is also disadvantaged.** The Wider Ayr area has a mean rank of `r round(wa_mean_rank)` (decile `r round(wa_mean_decile, 1)`), substantially below the rest of South Ayrshire (mean rank `r round(rest_mean_rank)`). `r round(wa_pct_bottom20)`% of Wider Ayr datazones fall in the bottom 20% nationally.
+
+3. **Deprivation clusters spatially.** Global Moran's I is positive and highly significant across all domains, confirming that deprived areas are concentrated together rather than scattered. `r n_hh` datazones in the Ayr study area form statistically significant deprivation hot spots (High-High clusters).
+
+4. **Domain drivers vary.** The domain profile reveals which aspects of deprivation are most acute in the town centre and its surrounds --- and which domains may present relative strengths. This matters for targeting the [Pride in Place](../docs/ref-pride-in-place.qmd) investment and the [Burns Statue Square](../docs/ref-burns-statue-square.qmd) redevelopment.
+
+5. **The vicious cycle is visible in the data.** The co-occurrence of deprivation across Income, Employment, Health, and Housing domains in the town centre and surrounding areas is consistent with the project's core hypothesis: that poor infrastructure, reduced footfall, business closures, and depopulation reinforce each other. The [Hourstons/Arran Mall](../docs/ref-hourstons-arran-mall.qmd) site --- three failed regeneration plans in six years --- is a concrete manifestation of this pattern.
+
+### Limitations
+
+- **SIMD is area-level, not individual-level.** Not everyone in a deprived datazone is deprived, and not all deprivation in less deprived areas is captured.
+- **SIMD 2020v2 uses pre-pandemic data.** The indicator data largely predates COVID-19; the situation may have worsened since.
+- **Rank-based measures are ordinal.** The difference between rank 100 and rank 200 is not necessarily the same as between rank 3,000 and rank 3,100.
+- **Two datazones is a very small Town Centre.** With only 2 datazones, the "Town Centre" tier statistics are inherently noisy. The Wider Ayr tier provides more robust aggregate comparisons.
+- **Datazone boundaries do not align perfectly with functional boundaries.** Ian's definition of the town centre (based on walking distance from parking) is more precise than what 2011 datazone boundaries can capture.
+
+## Next steps
+
+- **Population trends**: How has the demographic profile of these datazones changed over time? Are working-age residents leaving the town centre?
+- **Urban accessibility**: How well connected is Ayr town centre by road, rail, and bus? Does the road network create the pedestrian barriers Ian describes?
+- **Local economy**: What do business counts, vacancy rates, and sectoral employment tell us about the town centre's economic trajectory?
