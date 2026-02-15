@@ -30,7 +30,7 @@ The critical element is the **realignment of the A70 road**, which currently sep
 
 ## Policy significance
 
-This is the most significant planned intervention in Ayr town centre's physical infrastructure. The A70 realignment directly addresses the "poor access" element of the vicious cycle identified in this project's theory of change (see [background](background.qmd)). By improving the connection between Ayr Railway Station and the town centre, it could meaningfully increase pedestrian footfall. The shopfront improvement scheme addresses visual amenity and business viability simultaneously.
+This is the most significant planned intervention in Ayr town centre's physical infrastructure. The A70 realignment directly addresses the "poor access" element of the vicious cycle identified in this project's theory of change (see [background](../background.qmd)). By improving the connection between Ayr Railway Station and the town centre, it could meaningfully increase pedestrian footfall. The shopfront improvement scheme addresses visual amenity and business viability simultaneously.
 
 The timing is notable: construction overlaps with the start of the Pride in Place programme funding (see [Pride in Place summary](ref-pride-in-place.qmd)), creating a concentrated period of investment in the town centre.
 

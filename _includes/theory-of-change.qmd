@@ -1,0 +1,22 @@
+The core hypothesis is that poor access and infrastructure reduces footfall in the town centre, which drives business closures and loss of amenities. This creates a vicious cycle: fewer amenities make the town less attractive, accelerating depopulation --- particularly among younger families --- which further reduces demand. An ageing and shrinking population then weakens the economic base, leading to further underinvestment in access infrastructure.
+
+Proposed interventions aim to break this cycle at two points:
+
+1. **Improve access and attractiveness** --- making the town centre easier to reach and more appealing to visit, increasing footfall and supporting existing businesses.
+2. **Anchor the population** --- embedding essential services (e.g. health centres, community facilities) in the town centre so that it remains a hub of daily life regardless of retail trends.
+
+```{mermaid}
+graph TD
+    A[Poor access and infrastructure] --> B[Reduced footfall]
+    B --> C[Business closures and loss of amenities]
+    C --> D[Town centre less attractive]
+    D --> E[Depopulation, especially young families]
+    E --> F[Ageing and shrinking population]
+    F --> G[Weaker economic base]
+    G --> A
+
+    H[Intervention: Improve access and amenities] -.-> A
+    H -.-> B
+    I[Intervention: Anchor essential services] -.-> C
+    I -.-> D
+```

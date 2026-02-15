@@ -28,5 +28,8 @@ Thumbs.db
 .RData
 .Rproj.user/
 
+# Quarto internals
 /.quarto/
+_site/
+
 .claude/

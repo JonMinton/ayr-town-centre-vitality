@@ -1,10 +1,56 @@
 project:
+  type: website
+  output-dir: _site
+  resources:
+    - docs/tool/**
+  render:
+    - index.qmd
+    - docs/**/*.qmd
+    - analysis/**/*.qmd
+
+website:
   title: "Revitalising Ayr Town Centre"
-  output-dir: _outputs
+  navbar:
+    left:
+      - text: "Home"
+        href: index.qmd
+      - text: "Background"
+        href: docs/background.qmd
+      - text: "Analysis"
+        menu:
+          - text: "Demographic Profile"
+            href: analysis/demographic-comparison.qmd
+          - text: "Deprivation (SIMD)"
+            href: analysis/simd-ayr-town-centre.qmd
+          - text: "Local Economy"
+            href: analysis/local-economy.qmd
+          - text: "Urban Accessibility"
+            href: analysis/urban-accessibility.qmd
+      - text: "References"
+        menu:
+          - text: "Burns Statue Square"
+            href: docs/reference-summaries/ref-burns-statue-square.qmd
+          - text: "Hourstons and Arran Mall"
+            href: docs/reference-summaries/ref-hourstons-arran-mall.qmd
+          - text: "Pride in Place"
+            href: docs/reference-summaries/ref-pride-in-place.qmd
+      - text: "Interactive Map"
+        href: docs/tool/index.html
+      - text: "Presentation"
+        href: docs/presentation.qmd
+  page-footer:
+    center: "Revitalising Ayr Town Centre -- Evidence Base"
+
+freeze: auto
 
 format:
   html:
     toc: true
-    theme: default
+    theme: cosmo
 
 bibliography: refs/references.bib
+
+execute:
+  echo: false
+  warning: false
+  message: false

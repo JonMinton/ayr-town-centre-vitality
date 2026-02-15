@@ -1,0 +1,48 @@
+---
+title: "Revitalising Ayr Town Centre"
+subtitle: "Evidence Base for Policy and Investment"
+---
+
+This project examines the decline of Ayr town centre and builds an evidence base for revitalisation. It was developed in collaboration with local stakeholders to inform decisions around the Burns Statue Square redevelopment and Pride in Place programme investment.
+
+## Theory of change
+
+{{< include _includes/theory-of-change.qmd >}}
+
+## Analysis reports
+
+The evidence base comprises four complementary analytical reports, each examining a different dimension of the town centre's challenges:
+
+### [Demographic Profile](analysis/demographic-comparison.qmd)
+
+South Ayrshire's population structure compared with all 32 Scottish council areas. Examines median age, dependency ratios, and identifies the most demographically similar areas.
+
+### [Deprivation Mapping (SIMD)](analysis/simd-ayr-town-centre.qmd)
+
+Datazone-level analysis of the Scottish Index of Multiple Deprivation across seven domains: income, employment, health, education, access, crime, and housing. Maps spatial clustering of deprivation in and around the town centre.
+
+### [Local Economy](analysis/local-economy.qmd)
+
+Employment structure, income deprivation, and the economic case for the town centre as a jobs hub. Builds the argument for economic renaissance over residential surrender.
+
+### [Urban Accessibility](analysis/urban-accessibility.qmd)
+
+Transport infrastructure mapping using OpenStreetMap data: bus stops, car parks, pedestrian crossings, cycle paths, and footpaths. Quantifies the public transport penalty facing the most deprived populations.
+
+## Key findings
+
+{{< include _includes/key-findings.qmd >}}
+
+## Reference summaries
+
+- [Burns Statue Square Redevelopment](docs/reference-summaries/ref-burns-statue-square.qmd) --- GBP 16 million A70 realignment and pedestrian zone
+- [Hourstons Building and Arran Mall](docs/reference-summaries/ref-hourstons-arran-mall.qmd) --- failed regeneration and future options
+- [Pride in Place Programme](docs/reference-summaries/ref-pride-in-place.qmd) --- up to GBP 20 million over 10 years for Northern Ayr
+
+## Tools
+
+- [Interactive Datazone Map](docs/tool/index.html) --- Leaflet-based tool for exploring South Ayrshire datazones by tier
+
+## Presentation
+
+- [Stakeholder Presentation](docs/presentation.qmd) --- RevealJS slide deck summarising key findings

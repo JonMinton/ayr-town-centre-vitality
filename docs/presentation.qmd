@@ -1,0 +1,101 @@
+---
+title: "Revitalising Ayr Town Centre"
+subtitle: "Evidence Base for Stakeholders"
+date: last-modified
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    embed-resources: true
+    width: 1280
+    height: 720
+bibliography: ../refs/references.bib
+---
+
+## The problem {.smaller}
+
+{{< include ../_includes/theory-of-change.qmd >}}
+
+## South Ayrshire is ageing fast
+
+- **Median age 49.2** --- compared to Scotland's 41.8
+- **5th oldest** of 33 council areas (32 councils + Scotland)
+- **Old-age dependency ratio 4th highest** in Scotland
+- Most similar areas: Scottish Borders, Dumfries and Galloway, Na h-Eileanan Siar
+
+::: {.notes}
+Data source: NRS mid-year population estimates, mid-2024
+:::
+
+## Population pyramid
+
+![South Ayrshire's age--sex distribution (coloured) against Scotland average (outline)](../_freeze/analysis/demographic-comparison/figure-html/pyramid-1.png){width="70%"}
+
+## Most similar council areas
+
+![Demographic similarity ranking --- Euclidean distance in standardised indicator space](../_freeze/analysis/demographic-comparison/figure-html/similarity-chart-1.png){width="80%"}
+
+## Town centre deprivation
+
+- Town centre datazones fall in the **bottom 20% nationally** for income deprivation
+- Concentrated disadvantage across **income, employment, health, and housing** domains
+- Deprivation clusters spatially --- **hot spots** around the town centre and immediately north
+
+## Deprivation map
+
+![SIMD overall decile by datazone --- darker = more deprived](../_freeze/analysis/simd-ayr-town-centre/figure-html/decile-choropleth-zoomed-1.png){width="70%"}
+
+## Deprivation clusters
+
+![Local spatial autocorrelation (LISA) --- red = clusters of high deprivation](../_freeze/analysis/simd-ayr-town-centre/figure-html/lisa-1.png){width="70%"}
+
+## The town centre is a jobs hub
+
+- The town centre **employs roughly 3 times more people than live there**
+- Retail and hospitality dominate, but health and education are significant anchors
+- Converting to residential use would destroy this employment function
+
+## The case for renaissance {.smaller}
+
+The evidence supports **economic renaissance**, not residential surrender:
+
+1. The town centre still functions as an employment hub
+2. Health demand is concentrated nearby --- anchor health services in the town centre
+3. Income deprivation is high but employment exists --- the issue is access and wages, not absence of jobs
+4. Residential conversion removes the economic rationale for the town centre entirely
+5. The investment window (Burns Statue Square + Pride in Place) targets precisely the right interventions
+
+## The public transport penalty
+
+![Extra minutes by public transport vs car, by service type and tier](../_freeze/analysis/urban-accessibility/figure-html/plot-access-gap-1.png){width="80%"}
+
+## Transport infrastructure
+
+![Bus stops, car parks, crossings, and cycle infrastructure in Wider Ayr](../_freeze/analysis/urban-accessibility/figure-html/combined-map-1.png){width="65%"}
+
+## The A70 is the biggest barrier
+
+- The A70 road **physically separates Ayr Railway Station from the town centre**
+- Pedestrian crossings are sparse at exactly the point where foot traffic should flow
+- Burns Statue Square project realigns the A70 and creates a pedestrian zone
+- This is the **single most impactful intervention** identified in the evidence
+
+## Key findings
+
+{{< include ../_includes/key-findings.qmd >}}
+
+## The investment window
+
+- **Burns Statue Square** [@southayrshire2025burnsstatue]: GBP 16 million --- A70 realignment, pedestrian zone, shopfront improvements, active travel route to Prestwick Airport. Construction from summer 2026.
+- **Pride in Place** [@ukgov2025prideinplace]: up to GBP 20 million over 10 years for "Northern Ayr and Town Centre Regeneration Corridor". Funding from April 2026.
+- Together: a **once-in-a-generation opportunity** to break the vicious cycle at its most upstream point.
+
+## Next steps
+
+- Population trends over time (not just the current snapshot)
+- Migration flows --- who is leaving and who is arriving?
+- Vacancy rates and footfall data for the town centre
+- Census 2022 deep dive --- household composition, economic activity
+- Monitoring framework to track whether interventions are working
+
+## References

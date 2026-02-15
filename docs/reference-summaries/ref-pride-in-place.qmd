@@ -35,6 +35,6 @@ Neighbourhoods were selected based on the **Index of Multiple Deprivation** (IMD
 
 ## Policy significance
 
-This is a substantial funding commitment that creates both an opportunity and a constraint for Ayr town centre planning. The programme's three strategic aims --- stronger communities, thriving places, empowered residents --- align closely with the theory of change outlined in this project (see [background](background.qmd)). Any redevelopment proposals for the town centre should be considered in the context of this funding stream.
+This is a substantial funding commitment that creates both an opportunity and a constraint for Ayr town centre planning. The programme's three strategic aims --- stronger communities, thriving places, empowered residents --- align closely with the theory of change outlined in this project (see [background](../background.qmd)). Any redevelopment proposals for the town centre should be considered in the context of this funding stream.
 
 ## References

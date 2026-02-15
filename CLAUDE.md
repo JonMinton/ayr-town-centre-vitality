@@ -13,46 +13,96 @@ The core hypothesis is a vicious cycle: poor access/infrastructure → reduced f
 
 ```
 ├── CLAUDE.md              # This file — project context for Claude sessions
-├── .gitignore
-├── _quarto.yml            # Quarto project config (output dir, bibliography, format)
-├── docs/                  # Narrative documents (background, briefs, reports)
-│   └── background.qmd    # Project brief, theory of change, aims, data sources
+├── _quarto.yml            # Quarto website config (navbar, freeze, bibliography)
+├── index.qmd              # Website landing page
+├── _includes/             # Shared content fragments (included via {{< include >}})
+│   ├── theory-of-change.qmd   # Vicious cycle diagram (used in index, presentation)
+│   └── key-findings.qmd       # Headline findings (used in index, presentation)
+├── docs/                  # Narrative documents
+│   ├── background.qmd         # Project brief, theory of change, aims
+│   ├── presentation.qmd       # RevealJS stakeholder presentation
+│   ├── reference-summaries/   # Policy document summaries
+│   │   ├── ref-burns-statue-square.qmd
+│   │   ├── ref-hourstons-arran-mall.qmd
+│   │   └── ref-pride-in-place.qmd
+│   └── tool/                  # Pre-built interactive Leaflet map (not rendered by Quarto)
+│       ├── index.html
+│       └── sa_datazones.geojson
 ├── analysis/              # Data analysis Quarto notebooks (.qmd)
 │   ├── demographic-comparison.qmd  # Council area demographic comparison
-│   └── simd-ayr-town-centre.qmd   # SIMD deprivation analysis at datazone level
+│   ├── simd-ayr-town-centre.qmd   # SIMD deprivation analysis at datazone level
+│   ├── local-economy.qmd          # Employment, income, economic case
+│   └── urban-accessibility.qmd    # Transport infrastructure mapping
+├── R/                     # Reusable R functions and scripts
+│   ├── fetch_population_data.R
+│   ├── fetch_simd_data.R
+│   ├── fetch_bres_data.R
+│   ├── fetch_osm_data.R
+│   ├── calculate_indicators.R
+│   ├── calculate_simd.R
+│   ├── calculate_economy.R
+│   ├── calculate_access.R
+│   ├── plot_demographics.R
+│   ├── plot_simd.R
+│   ├── plot_economy.R
+│   └── plot_access.R
 ├── data/
-│   ├── raw/               # Raw downloaded data (Excel, CSV) — gitignored by default
-│   └── processed/         # Cleaned/derived datasets
+│   ├── raw/               # Raw downloaded data — gitignored
+│   └── processed/         # Cleaned/derived datasets — gitignored
 ├── refs/
-│   └── references.bib     # BibTeX bibliography
-├── _outputs/              # Rendered outputs (html, docx, pptx) — gitignored
-│   ├── docx/
-│   └── pptx/
-└── R/                     # Reusable R functions and scripts
-    ├── fetch_population_data.R   # Download & cache NRS population estimates
-    ├── fetch_simd_data.R         # Download & cache SIMD 2020v2 + datazone boundaries
-    ├── calculate_indicators.R    # Demographic indicators, rankings, similarity
-    ├── calculate_simd.R          # SIMD spatial joins, focus areas, Moran's I
-    ├── plot_demographics.R       # Population pyramids, comparison charts
-    └── plot_simd.R               # SIMD choropleths, LISA maps, Leaflet reference map
+│   ├── references.bib     # BibTeX bibliography
+│   └── ian-datazone-specs/ # GeoJSON tier definitions
+├── _freeze/               # Quarto freeze data (committed to git for CI)
+├── _site/                 # Rendered website output — gitignored
+├── _outputs/              # Legacy standalone renders — gitignored
+└── .github/workflows/
+    └── publish.yml        # GitHub Actions: deploy to GitHub Pages
 ```
 
 ## Technology stack
 
-- **Quarto** (.qmd) — primary authoring format for documents and analysis
+- **Quarto** (.qmd) — primary authoring format; project type: `website`
 - **Mermaid** — diagrams and logic models (use ```` ```{mermaid} ```` syntax in .qmd, NOT ```` ```mermaid ````)
-- **R** — data analysis and visualisation (when needed)
+- **R** — data analysis and visualisation (Homebrew R 4.5.2 via `QUARTO_R=/opt/homebrew/bin/R`)
 - **BibTeX** — reference management via `refs/references.bib`
-- **Git** — version control
+- **Git + GitHub Actions** — version control and automated deployment to GitHub Pages
 
 ## Key conventions
 
 - Use `.qmd` (not `.md`) for any document that needs rendering (diagrams, code, citations)
 - Narrative/background docs go in `docs/`, analysis notebooks go in `analysis/`
-- Raw data in `data/raw/`, processed data in `data/processed/`
-- Large data files are gitignored by default — track only small reference datasets
-- Rendered outputs go to `_outputs/` and are gitignored (regenerable via `quarto render`)
-- Quarto project config is in `_quarto.yml` at root
+- Shared content fragments go in `_includes/` and are included via `{{< include >}}`
+- Raw data in `data/raw/`, processed data in `data/processed/` — both gitignored
+- `_freeze/` is committed to git — it contains pre-computed R execution results so CI doesn't need R
+- `_site/` is the rendered website output — gitignored (regenerated by `quarto render`)
+- `_outputs/` is the legacy standalone render directory — gitignored
+
+## Website and deployment
+
+### Local rendering
+```bash
+export QUARTO_R=/opt/homebrew/bin/R
+quarto render                    # Build full website to _site/
+quarto preview                   # Live preview with auto-reload
+```
+
+### Rendering individual analysis pages (re-executes R code)
+```bash
+export QUARTO_R=/opt/homebrew/bin/R
+quarto render analysis/demographic-comparison.qmd
+```
+This updates `_freeze/analysis/demographic-comparison/` — commit the updated freeze data.
+
+### GitHub Pages deployment
+- Automatic via `.github/workflows/publish.yml` on push to `main`
+- The workflow installs Quarto (not R) and uses `_freeze/` data
+- Enable in repository Settings → Pages → Source: "GitHub Actions"
+
+### Presentation
+```bash
+quarto render docs/presentation.qmd    # Renders as part of website
+```
+The presentation is a RevealJS HTML slide deck, also accessible from the website navbar.
 
 ## Data pipelines
 
@@ -70,36 +120,35 @@ The core hypothesis is a vicious cycle: poor access/infrastructure → reduced f
 - 7 domains: Income, Employment, Health, Education, Access, Crime, Housing
 - South Ayrshire has 153 datazones (2011 basis)
 
-### Scottish statistical geographies (reference)
-| Level | 2011 basis | 2022 basis |
-|-------|-----------|-----------|
-| Council areas | 32 | 32 |
-| Health boards | 14 | 14 |
-| HSCPs | 31 | 31 |
-| Intermediate zones | 1,279 | 1,334 |
-| Data zones | 6,976 | 7,392 |
-| Output areas | 46,351 | 46,363 |
+### BRES employment data
+- Business Register and Employment Survey via Nomis API
+- `get_bres_data()` downloads and caches employment by SIC section at datazone level
+- Covers 2015--2023 for South Ayrshire datazones
+
+### OSM infrastructure data
+- Bus stops, car parks, pedestrian crossings, cycle paths, footpaths, railway stations
+- Fetched via direct Overpass API HTTP calls (not osmdata package)
+- `get_osm_infrastructure()` downloads and caches as RDS in `data/processed/osm_*.rds`
+
+## Study area tiers (defined by community councillor Ian MacLeod)
+
+- **Town Centre** (2 datazones): S01012481, S01012483
+- **Wider Ayr** (52 datazones): natural catchment area for Ayr town centre
+- **Rest of South Ayrshire** (99 datazones): Prestwick, Troon, Maybole, rural areas
+- Source files: `refs/ian-datazone-specs/town_centre.json`, `refs/ian-datazone-specs/wider_ayr.json`
 
 ## Current status
 
-- **Done**: Project brief with theory of change (`docs/background.qmd`); demographic comparison analysis (`analysis/demographic-comparison.qmd`) with population pyramids, indicator rankings, and council area similarity analysis
-- **Key finding**: South Ayrshire median age 49.2 (Scotland: 41.8), ranks 5th oldest. Most similar areas: Scottish Borders, Dumfries & Galloway, Na h-Eileanan Siar
-- **In progress**: SIMD 2020v2 deprivation analysis at datazone level (`analysis/simd-ayr-town-centre.qmd`) — R pipeline built, Ian's tier definitions received, ready for Phase B
+All four analytical reports are complete:
 
-### Study area tiers (defined by community councillor Ian MacLeod)
+1. **Demographic Profile** (`analysis/demographic-comparison.qmd`) — South Ayrshire median age 49.2, 5th oldest, most similar to Scottish Borders and Dumfries & Galloway
+2. **Deprivation Mapping** (`analysis/simd-ayr-town-centre.qmd`) — Town centre in bottom 20% nationally, spatial clustering of deprivation
+3. **Local Economy** (`analysis/local-economy.qmd`) — Town centre as jobs hub, case for renaissance over residential surrender
+4. **Urban Accessibility** (`analysis/urban-accessibility.qmd`) — PT penalty, A70 barrier, infrastructure mapping
 
-- **Town Centre** (2 datazones): S01012481, S01012483 — defined by walkability from parking (~3-4 min walk to shops). Boundary = roads that convey fast traffic, beyond which the area feels "dormitory" not town centre.
-- **Wider Ayr** (54 datazones): S01012451–S01012511 (with gaps) — defined by catchment gravity (residents who would shop in Ayr rather than Prestwick). Includes south of river (proximity) and NE deprived zones (bus-dependent).
-- **All South Ayrshire** (153 datazones) — used for spatial autocorrelation (Moran's I) analysis.
-- Source files: `refs/ian-datazone-specs/town_centre.json`, `refs/ian-datazone-specs/wider_ayr.json`
-
-## Planned analyses
-
-1. **Sociodemographic profile** (in progress) — SIMD 2020v2 deprivation at datazone level, choropleth maps, domain profiles, Moran's I spatial clustering
-2. **Urban accessibility** — transport routes, road network, parking, public transport access to Ayr town centre
-3. **Local economy** — business counts, vacancy rates, sectoral employment, footfall data
+Website and RevealJS presentation are set up. GitHub Pages deployment via GitHub Actions.
 
 ## Key references
 
-- Pride in Place Programme: £20m over 10 years for "Northern Ayr and Town Centre Regeneration Corridor" (`@ukgov2025prideinplace`)
-- Burns Statue Square Redevelopment: £16m Levelling Up Fund + £2m ward fund for pedestrianisation and A70 realignment (`@southayrshire2025burnsstatue`)
+- Pride in Place Programme: GBP 20m over 10 years for "Northern Ayr and Town Centre Regeneration Corridor" (`@ukgov2025prideinplace`)
+- Burns Statue Square Redevelopment: GBP 16m Levelling Up Fund + GBP 2m ward fund for pedestrianisation and A70 realignment (`@southayrshire2025burnsstatue`)
