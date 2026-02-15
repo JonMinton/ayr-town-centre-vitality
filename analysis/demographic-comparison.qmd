@@ -35,7 +35,7 @@ The key questions are:
 - **Which council areas are most demographically similar?**
 - **Where does South Ayrshire sit relative to Scotland as a whole?**
 
-Data source: NRS mid-year population estimates (`r data_year`), single year of age by sex, for all 32 council areas and Scotland.
+Data source: NRS mid-year population estimates [@nrs2024population] (`r data_year`), single year of age by sex, for all 32 council areas and Scotland.
 
 # South Ayrshire's Population Structure
 
@@ -162,3 +162,5 @@ age_gap <- round(sa$median_age - scot$median_age, 1)
 - **These findings are consistent with the project's theory of change**: an ageing and shrinking population weakens the economic base, contributing to the decline cycle identified in the [project background](../docs/background.qmd).
 
 - **Next steps**: examine population *trends* over time (not just the current snapshot), investigate migration flows, and layer in economic indicators (vacancy rates, footfall) to understand whether the demographic structure is accelerating town centre decline.
+
+## References

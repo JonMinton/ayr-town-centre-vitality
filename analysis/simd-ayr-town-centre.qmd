@@ -57,7 +57,7 @@ all_focus_dzs <- c(town_centre_dzs, wider_ayr_dzs)
 
 ## Introduction
 
-The **Scottish Index of Multiple Deprivation** (SIMD 2020v2) is the Scottish Government's official measure of area-level deprivation. It combines 7 domains --- Income, Employment, Health, Education, Access to Services, Crime, and Housing --- into a single overall ranking of all 6,976 datazones in Scotland. A datazone is a small area geography containing roughly 500--1,000 residents.
+The **Scottish Index of Multiple Deprivation** (SIMD 2020v2) [@scotgov2020simd] is the Scottish Government's official measure of area-level deprivation. It combines 7 domains --- Income, Employment, Health, Education, Access to Services, Crime, and Housing --- into a single overall ranking of all 6,976 datazones in Scotland. A datazone is a small area geography containing roughly 500--1,000 residents.
 
 This analysis examines deprivation patterns **at datazone level** in and around Ayr town centre. Rather than treating South Ayrshire as a single unit (as in the [demographic comparison](demographic-comparison.qmd)), we look at variation *within* the area --- identifying which streets and neighbourhoods face the most concentrated disadvantage, which domains drive that disadvantage, and whether deprivation clusters spatially.
 
@@ -294,3 +294,5 @@ n_hh <- sum(sa$lisa_cluster == "High-High" & sa$focus_tier %in% c("Town Centre",
 - **Population trends**: How has the demographic profile of these datazones changed over time? Are working-age residents leaving the town centre?
 - **Urban accessibility**: How well connected is Ayr town centre by road, rail, and bus? Does the road network create the pedestrian barriers Ian describes?
 - **Local economy**: What do business counts, vacancy rates, and sectoral employment tell us about the town centre's economic trajectory?
+
+## References

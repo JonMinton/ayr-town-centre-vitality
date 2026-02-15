@@ -16,6 +16,7 @@ data/raw/*.zip
 data/raw/SG_SIMD_2016/
 data/raw/SG_DataZoneBdry_2011/
 data/processed/*.csv
+data/processed/*.rds
 analysis/data/
 
 # OS files

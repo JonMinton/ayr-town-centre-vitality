@@ -1,0 +1,478 @@
+---
+title: "Urban Accessibility in Ayr Town Centre"
+subtitle: "Infrastructure, Barriers, and the Case for Better Connections"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+    fig-width: 10
+    fig-height: 8
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE, warning = FALSE, message = FALSE,
+  fig.retina = 2, dpi = 150
+)
+
+library(here)
+library(dplyr)
+library(tidyr)
+library(sf)
+library(ggplot2)
+library(knitr)
+library(jsonlite)
+library(scales)
+
+source(here("R", "fetch_simd_data.R"))
+source(here("R", "fetch_osm_data.R"))
+source(here("R", "calculate_simd.R"))
+source(here("R", "calculate_economy.R"))
+source(here("R", "calculate_access.R"))
+source(here("R", "plot_access.R"))
+```
+
+```{r load-data}
+# Load SIMD data (national and local)
+simd_all <- get_simd_data()
+boundaries <- get_dz_boundaries(council_area = "South Ayrshire", simd_df = simd_all)
+sa <- prepare_simd_spatial(simd_all, boundaries)
+
+# Load tier definitions
+tc_json <- fromJSON(here("refs", "ian-datazone-specs", "town_centre.json"))
+wa_json <- fromJSON(here("refs", "ian-datazone-specs", "wider_ayr.json"))
+town_centre_dzs <- tc_json$town_centre
+wider_ayr_dzs <- wa_json$wider_ayr
+
+sa <- classify_focus_area(sa, town_centre_dzs = town_centre_dzs,
+                           wider_ayr_dzs = wider_ayr_dzs)
+
+# Focus extent for zoomed maps (Wider Ayr + Town Centre)
+focus_dzs <- sa[sa$focus_tier %in% c("Town Centre", "Wider Ayr"), ]
+focus_extent <- st_bbox(focus_dzs)
+
+# Load OSM infrastructure
+infra <- get_osm_infrastructure(sa)
+```
+
+## Introduction
+
+This is the third in a series of analytical reports examining Ayr town centre. The [first report](simd-ayr-town-centre.qmd) mapped deprivation across the study area using the Scottish Index of Multiple Deprivation. The [second report](local-economy.qmd) profiled the town centre's employment base and built the economic case against residential surrender. This report addresses **accessibility** --- the physical infrastructure that enables or prevents people from reaching the town centre.
+
+The project's theory of change identifies poor access as the *starting point* of a vicious cycle: poor access leads to reduced footfall, which leads to business closures, which makes the town centre less attractive, which drives depopulation, which weakens the economic base, which leads to further underinvestment in access. If this theory is correct, then improving access is not just one of many possible interventions --- it is the *most upstream* intervention available.
+
+### The planned intervention
+
+The Burns Statue Square redevelopment [@southayrshire2025burnsstatue] represents the most significant planned change to Ayr's transport infrastructure. The GBP 16 million project includes:
+
+- **Realignment of the A70**, which currently separates Burns Statue Square from Ayr Railway Station, creating a barrier between the station and the town centre
+- **An enlarged pedestrian public space** extending from Station Road to Smith Street
+- **An active travel route** linking the town centre to Prestwick Airport
+
+Construction is targeted for summer 2026, overlapping with the start of Pride in Place programme funding [@ukgov2025prideinplace].
+
+### Study area
+
+This report uses the same three-tier geography as the previous reports:
+
+- **Town Centre** (`r length(town_centre_dzs)` datazones): the core commercial area
+- **Wider Ayr** (`r length(wider_ayr_dzs)` datazones): the residential catchment
+- **Rest of South Ayrshire** (`r nrow(sa) - length(town_centre_dzs) - length(wider_ayr_dzs)` datazones): the rural and suburban comparator
+
+### Data sources
+
+This report combines two complementary data layers:
+
+1. **SIMD 2020v2 access indicators** [@scotgov2020simd]: drive times and public transport times to key services (GP, post office, retail centre), providing a *quantitative measure* of how long it takes to reach services
+2. **OpenStreetMap infrastructure data** [@osm2025]: locations of bus stops, car parks, pedestrian crossings, cycle paths, and footpaths, providing a *spatial picture* of where transport infrastructure exists and where it does not
+
+## The SIMD access picture
+
+The SIMD Access domain measures how long it takes residents to reach key services by car and by public transport. Lower drive times and PT times indicate better access.
+
+```{r access-summary}
+access_summary <- calculate_access_summary(sa)
+
+# Create a wider table for display
+access_wide <- access_summary |>
+  mutate(
+    indicator_label = case_when(
+      indicator == "drive_GP" ~ "Drive to GP",
+      indicator == "drive_post" ~ "Drive to Post Office",
+      indicator == "drive_retail" ~ "Drive to Retail Centre",
+      indicator == "drive_petrol" ~ "Drive to Petrol Station",
+      indicator == "drive_primary" ~ "Drive to Primary School",
+      indicator == "drive_secondary" ~ "Drive to Secondary School",
+      indicator == "PT_GP" ~ "PT to GP",
+      indicator == "PT_post" ~ "PT to Post Office",
+      indicator == "PT_retail" ~ "PT to Retail Centre",
+      indicator == "Broadband" ~ "Broadband (% without)",
+      TRUE ~ indicator
+    ),
+    mean_value = round(mean_value, 1)
+  ) |>
+  filter(indicator %in% c("drive_GP", "drive_post", "drive_retail",
+                           "PT_GP", "PT_post", "PT_retail")) |>
+  select(indicator_label, focus_tier, mean_value) |>
+  pivot_wider(names_from = focus_tier, values_from = mean_value)
+
+kable(access_wide,
+      caption = "Mean travel time to services (minutes) by study area tier",
+      col.names = c("Service", "Town Centre", "Wider Ayr", "Rest of SA"))
+```
+
+As expected, the Town Centre has the shortest travel times to services --- it *is* the service hub. But the critical question is not absolute travel time; it is the **gap between modes**. How much longer does it take to reach the town centre by public transport compared to driving?
+
+### The public transport penalty
+
+```{r access-gap}
+access_gap <- calculate_access_gap(sa)
+```
+
+```{r plot-access-gap, fig.height=5}
+plot_access_gap(access_gap)
+```
+
+```{r plot-drive-vs-pt, fig.height=6}
+plot_drive_vs_pt(access_gap,
+                  title = "Drive Time vs Public Transport by Service and Area")
+```
+
+```{r gap-narrative}
+# Compute key stats for inline text
+rest_gp_gap <- access_gap |>
+  filter(focus_tier == "Rest of South Ayrshire", service == "GP") |>
+  pull(mean_gap)
+rest_retail_gap <- access_gap |>
+  filter(focus_tier == "Rest of South Ayrshire", service == "Retail") |>
+  pull(mean_gap)
+wa_gp_gap <- access_gap |>
+  filter(focus_tier == "Wider Ayr", service == "GP") |>
+  pull(mean_gap)
+```
+
+The public transport penalty is starkest for the **Rest of South Ayrshire**, where reaching a GP by public transport takes on average `r rest_gp_gap` minutes longer than by car, and reaching a retail centre takes `r rest_retail_gap` minutes longer. Even within **Wider Ayr**, the PT penalty for GP access is `r wa_gp_gap` minutes.
+
+This matters because the populations with the worst deprivation --- identified in the [SIMD report](simd-ayr-town-centre.qmd) --- are also the populations least likely to own a car. The PT penalty is not merely an inconvenience; it is a barrier that systematically excludes the most deprived residents from the services concentrated in the town centre.
+
+### Access domain geography
+
+```{r access-choropleth, fig.height=7}
+plot_access_domain_choropleth(
+  sa, focus_extent = focus_extent,
+  title = "SIMD Access Domain: Ayr and Surrounding Area"
+)
+```
+
+The SIMD Access Domain rank captures overall access deprivation. Darker red datazones have the worst access nationally. The pattern confirms that the town centre itself has relatively good access (it *is* where services are located), while surrounding areas face progressively worse access, particularly in rural datazones.
+
+## Mapping transport infrastructure
+
+The SIMD indicators tell us *how long* it takes to reach services. To understand *why*, we need to examine the infrastructure itself. Using OpenStreetMap data, we mapped the locations of bus stops, car parks, pedestrian crossings, cycle paths, and footpaths across the study area.
+
+```{r combined-map, fig.height=9}
+plot_combined_infrastructure_map(
+  sa, infra, focus_extent = focus_extent,
+  title = "Transport Infrastructure in Wider Ayr"
+)
+```
+
+```{r infra-density}
+infra_density <- summarise_infrastructure_by_tier(infra, sa)
+```
+
+```{r infra-table}
+infra_table <- infra_density |>
+  mutate(feature_label = INFRA_LABELS[feature]) |>
+  select(Feature = feature_label, Area = focus_tier,
+         Count = count, `Per 1,000 pop` = per_1000_pop,
+         `Per sq km` = per_km2)
+
+kable(infra_table,
+      caption = "Infrastructure feature counts and density by study area tier")
+```
+
+```{r infra-density-chart, fig.height=5}
+plot_infrastructure_density(
+  infra_density, metric = "per_1000_pop",
+  title = "Infrastructure Density per 1,000 Population"
+)
+```
+
+```{r infra-density-area, fig.height=5}
+plot_infrastructure_density(
+  infra_density, metric = "per_km2",
+  title = "Infrastructure Density per Square Kilometre"
+)
+```
+
+The density metrics tell two stories. **Per capita**, the Town Centre has the highest concentration of transport infrastructure --- it is a hub. **Per square kilometre**, this concentration is even more pronounced, reflecting the compact geography of the two town centre datazones. The Rest of South Ayrshire, despite its large area, has sparse infrastructure, explaining the high PT travel times observed in the SIMD data.
+
+## Bus access
+
+Bus access is the most critical dimension for the populations identified in the SIMD analysis as most deprived. Without a car, the bus is the primary means of reaching town centre services.
+
+```{r bus-map, fig.height=8}
+plot_infrastructure_map(
+  sa, infra$bus_stops, "Bus stops",
+  point_colour = INFRA_PALETTE["Bus stops"],
+  title = "Bus Stop Locations",
+  subtitle = paste0(nrow(infra$bus_stops), " bus stops in the study area"),
+  focus_extent = focus_extent
+)
+```
+
+```{r bus-distance}
+bus_distance <- calculate_nearest_distance(sa, infra$bus_stops, "Bus stops")
+```
+
+```{r bus-distance-plot, fig.height=6}
+plot_nearest_distance(
+  bus_distance,
+  title = "Distance to Nearest Bus Stop by Datazone"
+)
+```
+
+```{r bus-distance-stats}
+bus_stats <- bus_distance |>
+  group_by(focus_tier) |>
+  summarise(
+    mean_dist = round(mean(nearest_distance_m)),
+    median_dist = round(median(nearest_distance_m)),
+    max_dist = round(max(nearest_distance_m)),
+    .groups = "drop"
+  )
+
+tc_bus_dist <- bus_stats$mean_dist[bus_stats$focus_tier == "Town Centre"]
+wa_bus_dist <- bus_stats$mean_dist[bus_stats$focus_tier == "Wider Ayr"]
+rest_bus_dist <- bus_stats$mean_dist[bus_stats$focus_tier == "Rest of South Ayrshire"]
+rest_max_bus <- bus_stats$max_dist[bus_stats$focus_tier == "Rest of South Ayrshire"]
+```
+
+The mean distance from a datazone centroid to the nearest bus stop is `r tc_bus_dist` metres in the Town Centre, `r wa_bus_dist` metres in Wider Ayr, and `r comma(rest_bus_dist)` metres in the Rest of South Ayrshire. The worst-served datazone in the Rest of South Ayrshire is `r comma(rest_max_bus)` metres --- over `r round(rest_max_bus / 1000, 1)` km --- from the nearest bus stop.
+
+```{r bus-stats-table}
+kable(bus_stats,
+      col.names = c("Area", "Mean (m)", "Median (m)", "Max (m)"),
+      caption = "Distance to nearest bus stop (metres) by study area tier")
+```
+
+Bus stop density is not just about distance; it also reflects service frequency and route coverage. A datazone close to a bus stop on a route with only two services a day is not meaningfully served. The SIMD PT travel times capture this broader dimension, but the bus stop map shows where the physical infrastructure exists.
+
+## Parking and car access
+
+Car access matters because it is the dominant mode of travel to Ayr town centre. The distance from parking to shops and services defines the effective boundary of the town centre for car-borne visitors.
+
+```{r parking-map, fig.height=8}
+plot_infrastructure_map(
+  sa, infra$car_parks, "Car parks",
+  point_colour = INFRA_PALETTE["Car parks"],
+  point_size = 2.5,
+  title = "Car Park Locations",
+  subtitle = paste0(nrow(infra$car_parks), " car parks in the study area (nodes + areas)"),
+  focus_extent = focus_extent
+)
+```
+
+```{r parking-distance}
+park_distance <- calculate_nearest_distance(sa, infra$car_parks, "Car parks")
+park_stats <- park_distance |>
+  group_by(focus_tier) |>
+  summarise(
+    mean_dist = round(mean(nearest_distance_m)),
+    median_dist = round(median(nearest_distance_m)),
+    .groups = "drop"
+  )
+
+tc_park_dist <- park_stats$mean_dist[park_stats$focus_tier == "Town Centre"]
+```
+
+The mean distance from a town centre datazone centroid to the nearest car park is `r tc_park_dist` metres. This is within the 3--4 minute walking threshold that community councillors have identified as critical for shoppers' willingness to walk from car to shop.
+
+The Burns Statue Square redevelopment will relocate parking from the current riverfront area. The impact on car park proximity to shops depends on the final design, but the principle is clear: car park placement defines the walkable boundary of a functioning town centre.
+
+## Pedestrian barriers
+
+Pedestrian crossings are the infrastructure that mediates the conflict between vehicle traffic and foot traffic. Where crossings are sparse, fast-moving roads become physical barriers.
+
+```{r crossing-map, fig.height=8}
+plot_infrastructure_map(
+  sa, infra$crossings, "Pedestrian crossings",
+  point_colour = INFRA_PALETTE["Pedestrian crossings"],
+  title = "Pedestrian Crossing Locations",
+  subtitle = paste0(nrow(infra$crossings), " crossings in the study area"),
+  focus_extent = focus_extent
+)
+```
+
+```{r crossing-distance}
+cross_distance <- calculate_nearest_distance(sa, infra$crossings, "Pedestrian crossings")
+cross_stats <- cross_distance |>
+  group_by(focus_tier) |>
+  summarise(
+    mean_dist = round(mean(nearest_distance_m)),
+    median_dist = round(median(nearest_distance_m)),
+    .groups = "drop"
+  )
+
+tc_cross_dist <- cross_stats$mean_dist[cross_stats$focus_tier == "Town Centre"]
+wa_cross_dist <- cross_stats$mean_dist[cross_stats$focus_tier == "Wider Ayr"]
+```
+
+The mean distance to the nearest pedestrian crossing is `r tc_cross_dist` metres in the Town Centre and `r wa_cross_dist` metres in Wider Ayr. But density alone does not capture the problem. The A70, which runs through Burns Statue Square, creates a specific barrier between Ayr Railway Station and the town centre. The Burns Statue Square project directly addresses this by realigning the A70 through New Bridge Street and creating a contiguous pedestrian zone between the station and the commercial core.
+
+## Active travel
+
+Cycle paths and footpaths provide the infrastructure for car-free access to the town centre.
+
+```{r cycle-map, fig.height=8}
+plot_line_infrastructure_map(
+  sa, infra$cycle_paths, "Cycle paths",
+  line_colour = INFRA_PALETTE["Cycle paths"],
+  title = "Cycle Path Network",
+  subtitle = paste0(nrow(infra$cycle_paths), " cycle path segments in the study area"),
+  focus_extent = focus_extent
+)
+```
+
+```{r footpath-map, fig.height=8}
+plot_line_infrastructure_map(
+  sa, infra$footpaths, "Footpaths",
+  line_colour = "#457B9D",
+  title = "Footpath Network",
+  subtitle = paste0(nrow(infra$footpaths), " footpath segments in the study area"),
+  focus_extent = focus_extent
+)
+```
+
+```{r line-lengths}
+cycle_lengths <- calculate_line_length_by_tier(infra$cycle_paths, sa, "Cycle paths")
+foot_lengths <- calculate_line_length_by_tier(infra$footpaths, sa, "Footpaths")
+line_lengths <- bind_rows(cycle_lengths, foot_lengths)
+```
+
+```{r line-table}
+if (nrow(line_lengths) > 0) {
+  line_wide <- line_lengths |>
+    select(Area = focus_tier, Feature = feature, `Total km` = total_length_km) |>
+    pivot_wider(names_from = Area, values_from = `Total km`, values_fill = 0)
+  kable(line_wide,
+        caption = "Total length of cycle and footpath infrastructure by study area tier (km)")
+}
+```
+
+The Burns Statue Square project includes an active travel route linking the town centre to Prestwick Airport. This is significant: Ayr Railway Station is already a key node, and an active travel link to the airport would extend the town centre's connectivity to a regional transport hub.
+
+## Railway connectivity
+
+```{r railway-map, fig.height=8}
+plot_infrastructure_map(
+  sa, infra$railway_stations, "Railway stations",
+  point_colour = INFRA_PALETTE["Railway stations"],
+  point_size = 4,
+  title = "Railway Stations",
+  subtitle = paste0(nrow(infra$railway_stations), " station(s) in the study area"),
+  focus_extent = focus_extent
+)
+```
+
+```{r rail-distance}
+rail_distance <- calculate_nearest_distance(sa, infra$railway_stations, "Railway stations")
+rail_stats <- rail_distance |>
+  group_by(focus_tier) |>
+  summarise(
+    mean_dist = round(mean(nearest_distance_m)),
+    .groups = "drop"
+  )
+tc_rail_dist <- rail_stats$mean_dist[rail_stats$focus_tier == "Town Centre"]
+```
+
+Ayr Railway Station sits on the Glasgow--Ayr line, providing direct rail connections to Glasgow Central. The mean distance from town centre datazones to the station is `r comma(tc_rail_dist)` metres. The current A70 alignment creates a barrier between the station and the commercial centre --- exactly the barrier that the Burns Statue Square project proposes to remove.
+
+## Synthesis: the accessibility case
+
+```{r synthesis-table}
+synthesis <- tibble(
+  Indicator = c(
+    "Bus stops in study area",
+    "Car parks in study area",
+    "Pedestrian crossings in study area",
+    "Cycle path segments",
+    "Mean distance to bus stop (Town Centre)",
+    "Mean distance to bus stop (Rest of SA)",
+    "PT penalty for GP access (Rest of SA)",
+    "PT penalty for retail access (Rest of SA)",
+    "Distance to railway station (Town Centre)",
+    "Planned infrastructure investment"
+  ),
+  Value = c(
+    as.character(nrow(infra$bus_stops)),
+    as.character(nrow(infra$car_parks)),
+    as.character(nrow(infra$crossings)),
+    as.character(nrow(infra$cycle_paths)),
+    paste0(tc_bus_dist, " m"),
+    paste0(comma(rest_bus_dist), " m"),
+    paste0(rest_gp_gap, " min"),
+    paste0(rest_retail_gap, " min"),
+    paste0(comma(tc_rail_dist), " m"),
+    "\u00A316m (Burns Statue Square)"
+  ),
+  Implication = c(
+    "Infrastructure exists but coverage is uneven",
+    "Parking available but placement matters for walkability",
+    "Crossings exist but critical gaps remain (A70 barrier)",
+    "Active travel network growing but fragmented",
+    "Town centre is well-served by bus",
+    "Rural populations face significant access barriers",
+    "Bus-dependent residents pay a large time penalty",
+    "PT users significantly disadvantaged for town centre access",
+    "Rail connection is close but road barrier reduces effectiveness",
+    "A70 realignment directly addresses the biggest identified barrier"
+  )
+)
+
+kable(synthesis, caption = "Key accessibility indicators and policy implications")
+```
+
+### The accessibility argument
+
+The evidence in this report supports a clear argument:
+
+1. **The public transport penalty is real and measurable.** Populations without car access --- disproportionately the most deprived populations identified in the [SIMD analysis](simd-ayr-town-centre.qmd) --- face significantly longer travel times to services. This is not a matter of choice; it is a structural barrier.
+
+2. **Infrastructure exists but is unevenly distributed.** The town centre is well-served by bus stops, car parks, and crossings. But the wider catchment and rural areas have sparse infrastructure, creating a "last mile" problem that undermines the town centre's function as a service hub.
+
+3. **The A70 is the single biggest barrier.** The road separating Ayr Railway Station from the town centre is a specific, identifiable infrastructure problem. The Burns Statue Square project [@southayrshire2025burnsstatue] directly addresses this by realigning the road and creating a pedestrian zone.
+
+4. **Accessibility improvements support economic renaissance, not residential surrender.** The [economic analysis](local-economy.qmd) showed that the town centre still functions as an employment hub. Making it easier to reach strengthens this function. Converting it to residential use without first addressing the access barriers that contributed to decline would be to misdiagnose the problem.
+
+5. **The investment window is open.** The Burns Statue Square project (GBP 16 million) and Pride in Place programme [@ukgov2025prideinplace] (up to GBP 20 million over 10 years) together represent a once-in-a-generation opportunity to address Ayr's accessibility deficits. The evidence supports using this investment to break the vicious cycle at its most upstream point.
+
+```{mermaid}
+%%| fig-cap: "How accessibility improvements break the vicious cycle"
+flowchart TD
+    A["Burns Statue Square<br/>A70 realignment"] --> B["Barrier removed between<br/>station and town centre"]
+    B --> C["Increased pedestrian footfall"]
+    C --> D["More viable for businesses"]
+    D --> E["Employment retained / created"]
+    E --> F["Town centre attractive<br/>to visitors and investors"]
+    F --> G["Services anchored<br/>in town centre"]
+    G --> H["Reason for residents<br/>to visit town centre"]
+
+    I["Pride in Place<br/>programme"] --> J["Active travel routes<br/>Bus infrastructure"]
+    J --> C
+
+    style A fill:#D62828,color:#fff
+    style I fill:#003049,color:#fff
+```
+
+### Limitations
+
+- **OpenStreetMap data is community-contributed** and may not be complete. Some infrastructure (especially recently built crossings or cycle paths) may be missing. Conversely, some mapped features may no longer exist.
+- **SIMD 2020v2 access indicators use pre-pandemic data** (approximately 2017--2019). Bus services may have changed since, particularly post-COVID reductions.
+- **Bus stop presence does not indicate service frequency.** A bus stop on a route with two services per day is not equivalent to one with services every 15 minutes. This analysis does not capture timetable data.
+- **Car park data includes all mapped parking** (including private, residential, and supermarket parking). Not all car parks serve the town centre.
+- **The study area is defined by administrative datazones**, not by functional transport catchment areas. Some relevant infrastructure may fall just outside the study boundary.
+
+## References
