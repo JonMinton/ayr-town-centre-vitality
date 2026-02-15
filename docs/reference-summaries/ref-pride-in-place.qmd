@@ -1,7 +1,6 @@
 ---
 title: "Pride in Place Programme"
 subtitle: "Reference Summary"
-bibliography: ../refs/references.bib
 format:
   html:
     embed-resources: true

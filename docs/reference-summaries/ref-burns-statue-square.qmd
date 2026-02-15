@@ -1,7 +1,6 @@
 ---
 title: "Burns Statue Square Redevelopment"
 subtitle: "Reference Summary"
-bibliography: ../refs/references.bib
 format:
   html:
     embed-resources: true

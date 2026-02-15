@@ -1,7 +1,6 @@
 ---
 title: "Deprivation in Ayr Town Centre"
 subtitle: "SIMD 2020v2 Analysis at Datazone Level"
-bibliography: ../refs/references.bib
 format:
   html:
     embed-resources: true
@@ -278,9 +277,9 @@ n_hh <- sum(sa$lisa_cluster == "High-High" & sa$focus_tier %in% c("Town Centre",
 
 3. **Deprivation clusters spatially.** Global Moran's I is positive and highly significant across all domains, confirming that deprived areas are concentrated together rather than scattered. `r n_hh` datazones in the Ayr study area form statistically significant deprivation hot spots (High-High clusters).
 
-4. **Domain drivers vary.** The domain profile reveals which aspects of deprivation are most acute in the town centre and its surrounds --- and which domains may present relative strengths. This matters for targeting the [Pride in Place](../docs/ref-pride-in-place.qmd) investment and the [Burns Statue Square](../docs/ref-burns-statue-square.qmd) redevelopment.
+4. **Domain drivers vary.** The domain profile reveals which aspects of deprivation are most acute in the town centre and its surrounds --- and which domains may present relative strengths. This matters for targeting the [Pride in Place](../docs/reference-summaries/ref-pride-in-place.qmd) investment and the [Burns Statue Square](../docs/reference-summaries/ref-burns-statue-square.qmd) redevelopment.
 
-5. **The vicious cycle is visible in the data.** The co-occurrence of deprivation across Income, Employment, Health, and Housing domains in the town centre and surrounding areas is consistent with the project's core hypothesis: that poor infrastructure, reduced footfall, business closures, and depopulation reinforce each other. The [Hourstons/Arran Mall](../docs/ref-hourstons-arran-mall.qmd) site --- three failed regeneration plans in six years --- is a concrete manifestation of this pattern.
+5. **The vicious cycle is visible in the data.** The co-occurrence of deprivation across Income, Employment, Health, and Housing domains in the town centre and surrounding areas is consistent with the project's core hypothesis: that poor infrastructure, reduced footfall, business closures, and depopulation reinforce each other. The [Hourstons/Arran Mall](../docs/reference-summaries/ref-hourstons-arran-mall.qmd) site --- three failed regeneration plans in six years --- is a concrete manifestation of this pattern.
 
 ### Limitations
 

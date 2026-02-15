@@ -1,7 +1,6 @@
 ---
 title: "Hourstons Building and Arran Mall Redevelopment"
 subtitle: "Reference Summary"
-bibliography: ../refs/references.bib
 format:
   html:
     embed-resources: true

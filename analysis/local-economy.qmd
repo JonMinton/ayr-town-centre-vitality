@@ -1,0 +1,383 @@
+---
+title: "The Economic Profile of Ayr Town Centre"
+subtitle: "Employment, Income, and the Case Against Surrender"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+    fig-width: 10
+    fig-height: 8
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE, warning = FALSE, message = FALSE,
+  fig.retina = 2, dpi = 150
+)
+
+library(here)
+library(dplyr)
+library(tidyr)
+library(sf)
+library(ggplot2)
+library(knitr)
+library(jsonlite)
+library(scales)
+
+source(here("R", "fetch_simd_data.R"))
+source(here("R", "fetch_bres_data.R"))
+source(here("R", "calculate_simd.R"))
+source(here("R", "calculate_economy.R"))
+source(here("R", "plot_economy.R"))
+```
+
+```{r load-data}
+# Load SIMD data (national and local)
+simd_all <- get_simd_data()
+boundaries <- get_dz_boundaries(council_area = "South Ayrshire", simd_df = simd_all)
+sa <- prepare_simd_spatial(simd_all, boundaries)
+
+# Load tier definitions
+tc_json <- fromJSON(here("refs", "ian-datazone-specs", "town_centre.json"))
+wa_json <- fromJSON(here("refs", "ian-datazone-specs", "wider_ayr.json"))
+town_centre_dzs <- tc_json$town_centre
+wider_ayr_dzs <- wa_json$wider_ayr
+
+sa <- classify_focus_area(sa, town_centre_dzs = town_centre_dzs,
+                           wider_ayr_dzs = wider_ayr_dzs)
+
+# Load BRES employment data
+bres <- get_bres_data()
+
+# Datazone-level economic data
+dz_econ <- get_datazone_economy(sa)
+```
+
+## Introduction
+
+Ayr town centre faces a critical choice. After three failed regeneration attempts at the former Hourstons/Arran Mall site --- leisure centre, care village, and now mixed residential [@southayrshire2025hourstons] --- the question is whether to surrender the town centre to residential conversion or to pursue economic renaissance through the incoming Pride in Place programme [@ukgov2025prideinplace] and the Burns Statue Square redevelopment [@southayrshire2025burnsstatue].
+
+This report examines the economic evidence. Using raw deprivation indicators from the Scottish Index of Multiple Deprivation [@scotgov2020simd] and employment data from the Business Register and Employment Survey [@ons2024bres], we profile the economic base of Ayr town centre and its wider catchment at datazone level.
+
+The analysis uses the same three-tier geography as the [deprivation report](simd-ayr-town-centre.qmd):
+
+- **Town Centre** (`r length(town_centre_dzs)` datazones): the core walkable retail/hospitality zone
+- **Wider Ayr** (`r sum(sa$focus_tier == "Wider Ayr")` datazones): the natural catchment area for Ayr town centre
+- **Rest of South Ayrshire** (`r sum(sa$focus_tier == "Rest of South Ayrshire")` datazones)
+
+## The working population
+
+Before examining jobs and businesses, we need to understand who lives in these areas. The SIMD indicators reveal the economic condition of the resident population.
+
+```{r population-composition, fig.height=5, fig.cap="Population composition by study area tier. The town centre has a small resident population relative to the wider catchment."}
+plot_working_age_composition(sa)
+```
+
+```{r tier-economic-summary}
+tier_econ <- sa |>
+  st_drop_geometry() |>
+  group_by(focus_tier) |>
+  summarise(
+    Datazones = n(),
+    Population = sum(Population, na.rm = TRUE),
+    `Working Age` = sum(Working_Age_Population, na.rm = TRUE),
+    `Working Age %` = round(sum(Working_Age_Population, na.rm = TRUE) /
+                              sum(Population, na.rm = TRUE) * 100, 1),
+    `Income Deprived %` = round(mean(Income_rate, na.rm = TRUE), 1),
+    `Employment Deprived %` = round(mean(Employment_rate, na.rm = TRUE), 1),
+    .groups = "drop"
+  )
+
+kable(tier_econ,
+      caption = "Population and deprivation by study area tier. Income and employment deprivation rates are means across datazones.")
+```
+
+### Income and employment deprivation across datazones
+
+```{r income-dotplot, fig.height=7, fig.cap="Income deprivation rate by datazone. Each point represents one datazone, ordered from lowest to highest deprivation. Town centre datazones (red) cluster near the most deprived end."}
+plot_indicator_dotplot(dz_econ, "Income_rate",
+                        label = "Income deprivation rate (%)",
+                        title = "Income Deprivation by Datazone")
+```
+
+```{r employment-dotplot, fig.height=7, fig.cap="Employment deprivation rate by datazone. The pattern mirrors income deprivation, with the town centre and several Wider Ayr datazones showing high employment deprivation."}
+plot_indicator_dotplot(dz_econ, "Employment_rate",
+                        label = "Employment deprivation rate (%)",
+                        title = "Employment Deprivation by Datazone")
+```
+
+```{r income-employment-scatter, fig.height=6, fig.cap="Relationship between income and employment deprivation. Point size reflects population. The strong positive correlation shows that areas with low incomes also have high worklessness --- both aspects of the same economic weakness."}
+plot_deprivation_scatter(
+  dz_econ,
+  x_var = "Income_rate", y_var = "Employment_rate",
+  x_label = "Income deprivation rate (%)",
+  y_label = "Employment deprivation rate (%)",
+  title = "Income vs Employment Deprivation"
+)
+```
+
+## Employment structure
+
+What kinds of jobs exist in and around Ayr town centre? The Business Register and Employment Survey (BRES) provides employment counts by industry sector at datazone level, giving a picture of the town centre's economic function.
+
+```{r employment-structure}
+emp_structure <- calculate_employment_structure(bres, sa)
+jobs_per_cap <- calculate_jobs_per_capita(bres, sa)
+```
+
+```{r jobs-per-capita}
+kable(jobs_per_cap,
+      caption = "Jobs per capita by study area tier. A functioning town centre typically has more jobs than residents. A ratio above 1.0 indicates a net employment hub; below 1.0 indicates a dormitory area.",
+      col.names = c("Tier", "Population", "Working Age", "Total Jobs",
+                     "Jobs per Resident", "Jobs per Working-Age Person"))
+```
+
+```{r employment-pct-chart, fig.height=6, fig.cap="Employment composition by sector and tier. The chart shows what proportion of jobs in each tier come from each broad industry sector."}
+plot_employment_by_sector(emp_structure, show_pct = TRUE,
+                           title = "Employment Composition by Sector")
+```
+
+```{r employment-count-chart, fig.height=6, fig.cap="Absolute employment counts by sector and tier. The wider Ayr catchment has the largest employment base, with health and social care, retail, and hospitality as the dominant sectors."}
+plot_employment_by_sector(emp_structure, show_pct = FALSE,
+                           title = "Employment Counts by Sector")
+```
+
+```{r top-sectors-wider, fig.height=5, fig.cap="Top sectors by employment in the Wider Ayr catchment area."}
+plot_top_sectors(emp_structure, tier = "Wider Ayr",
+                  title = "Top Sectors: Wider Ayr Catchment")
+```
+
+```{r town-centre-employment}
+tc_emp <- emp_structure |>
+  filter(focus_tier == "Town Centre") |>
+  arrange(desc(employment)) |>
+  select(Sector = sector, Employment = employment, `Share (%)` = pct) |>
+  mutate(`Share (%)` = round(`Share (%)`, 1))
+
+kable(tc_emp,
+      caption = "Employment breakdown for the two town centre datazones. Despite deprivation, the town centre retains a diverse employment base.")
+```
+
+## Deprivation as economic signal
+
+The SIMD indicators, examined in the [deprivation report](simd-ayr-town-centre.qmd) as measures of disadvantage, can also be read as economic signals. Each indicator tells us something about the viability of the town centre as an economic space.
+
+```{r health-profile}
+health_profile <- calculate_economic_health_profile(simd_all, sa)
+```
+
+```{r radar-chart, fig.height=7, fig.width=8, fig.cap="Economic health profile by tier. Each axis shows where the tier's mean falls in the national distribution (percentile). Higher values = worse position. The Town Centre and Wider Ayr areas score poorly across most indicators."}
+plot_radar_chart(health_profile,
+                  title = "Economic Health Profile: National Percentiles")
+```
+
+```{r health-profile-table}
+health_wide <- health_profile |>
+  mutate(
+    indicator_label = case_when(
+      indicator == "Income_rate" ~ "Income deprivation",
+      indicator == "Employment_rate" ~ "Employment deprivation",
+      indicator == "crime_rate" ~ "Crime rate",
+      indicator == "overcrowded_rate" ~ "Overcrowding",
+      indicator == "nocentralheat_rate" ~ "No central heating",
+      indicator == "CIF" ~ "Comparative Illness Factor",
+      indicator == "ALCOHOL" ~ "Alcohol hospitalisations",
+      indicator == "DRUG" ~ "Drug hospitalisations",
+      TRUE ~ indicator
+    ),
+    display = paste0(round(value, 1), " (", national_percentile, "th %ile)")
+  ) |>
+  select(focus_tier, indicator_label, display) |>
+  pivot_wider(names_from = focus_tier, values_from = display)
+
+kable(health_wide,
+      caption = "Economic health indicators by tier. Values shown with national percentile position in brackets. Higher percentile = worse national position.",
+      col.names = c("Indicator", "Town Centre", "Wider Ayr", "Rest of SA"))
+```
+
+### What the indicators mean for economic viability
+
+- **Income deprivation** signals low consumer spending power. Businesses in high-deprivation areas face a smaller effective market --- residents have less disposable income to spend locally.
+
+- **Employment deprivation** reflects both fewer potential customers (unemployed people spend less) and a signal of labour market weakness. However, it also represents a potential workforce that could be engaged through targeted employment initiatives.
+
+- **Crime** affects the business environment through insurance costs, security spending, staff retention, and --- most critically --- deterring visitors and footfall.
+
+- **Health indicators** (illness, alcohol, drug hospitalisations) represent demand for health services. This supports the case for anchoring GP surgeries, pharmacies, addiction services, and community health facilities in the town centre rather than dispersing them.
+
+- **Housing quality** (overcrowding, no central heating) challenges the argument for more residential conversion. If existing housing stock is poor, the priority should be improving what exists rather than adding more of the same.
+
+```{r crime-income-scatter, fig.height=6, fig.cap="Relationship between income deprivation and crime rate across South Ayrshire datazones. The correlation reinforces the vicious cycle: areas with lower incomes tend to have higher crime, which in turn deters business and investment."}
+plot_deprivation_scatter(
+  dz_econ,
+  x_var = "Income_rate", y_var = "crime_rate",
+  x_label = "Income deprivation rate (%)",
+  y_label = "Crime rate (per capita)",
+  title = "Income Deprivation vs Crime Rate"
+)
+```
+
+### Health service demand
+
+```{r health-demand}
+health_demand <- sa |>
+  st_drop_geometry() |>
+  group_by(focus_tier) |>
+  summarise(
+    `Mean CIF` = round(mean(CIF, na.rm = TRUE)),
+    `Mean SMR` = round(mean(SMR, na.rm = TRUE)),
+    `Mean Alcohol` = round(mean(ALCOHOL, na.rm = TRUE)),
+    `Mean Drug` = round(mean(DRUG, na.rm = TRUE)),
+    `Mean Emergency` = round(mean(EMERG, na.rm = TRUE)),
+    `Mean Depression` = round(mean(DEPRESS, na.rm = TRUE), 1),
+    .groups = "drop"
+  )
+
+kable(health_demand,
+      caption = "Health indicators by tier (higher values = greater need). CIF = Comparative Illness Factor, SMR = Standardised Mortality Ratio. These are standardised measures where 100 = Scottish average. Values above 100 indicate greater need than the national norm.",
+      col.names = c("Tier", "Illness (CIF)", "Mortality (SMR)", "Alcohol",
+                     "Drug", "Emergency", "Depression %"))
+```
+
+The elevated health indicators in the Town Centre and Wider Ayr tiers represent concentrated demand for health services. Locating health facilities within walking distance of these populations would both serve clinical need and generate town centre footfall --- a virtuous rather than vicious cycle.
+
+## Access to services
+
+The SIMD access domain measures travel times to key services by car and public transport. The gap between these two modes reveals how car-dependent the area is --- a critical consideration given that the most deprived residents are least likely to own a car.
+
+```{r access-summary}
+access_summary <- calculate_access_summary(sa)
+```
+
+```{r access-chart, fig.height=6, fig.cap="Mean travel time to GP, post office, and retail centre by mode and tier. The gap between drive time and public transport time indicates car dependency. For the town centre, travel times are naturally low; for Wider Ayr, the PT gap reveals accessibility challenges."}
+plot_access_comparison(access_summary,
+                        title = "Access to Services by Transport Mode")
+```
+
+```{r access-table}
+access_wide <- access_summary |>
+  mutate(
+    indicator_label = case_when(
+      indicator == "drive_GP" ~ "Drive to GP",
+      indicator == "drive_post" ~ "Drive to Post Office",
+      indicator == "drive_retail" ~ "Drive to Retail",
+      indicator == "drive_primary" ~ "Drive to Primary School",
+      indicator == "drive_secondary" ~ "Drive to Secondary School",
+      indicator == "PT_GP" ~ "PT to GP",
+      indicator == "PT_post" ~ "PT to Post Office",
+      indicator == "PT_retail" ~ "PT to Retail",
+      indicator == "Broadband" ~ "Broadband access",
+      TRUE ~ indicator
+    ),
+    mean_value = round(mean_value, 1)
+  ) |>
+  select(focus_tier, indicator_label, mean_value) |>
+  pivot_wider(names_from = focus_tier, values_from = mean_value)
+
+kable(access_wide,
+      caption = "Mean access indicators by tier. Travel times in minutes. Broadband = % of premises with high-speed access.",
+      col.names = c("Indicator", "Town Centre", "Wider Ayr", "Rest of SA"))
+```
+
+This section provides a preview of the access dimension; a full accessibility analysis examining road network design, pedestrian infrastructure, and public transport connectivity is planned as a subsequent report.
+
+## The economic case
+
+```{r compute-synthesis}
+tc_income_rate <- mean(sa$Income_rate[sa$focus_tier == "Town Centre"], na.rm = TRUE)
+wa_income_rate <- mean(sa$Income_rate[sa$focus_tier == "Wider Ayr"], na.rm = TRUE)
+rest_income_rate <- mean(sa$Income_rate[sa$focus_tier == "Rest of South Ayrshire"], na.rm = TRUE)
+tc_emp_rate <- mean(sa$Employment_rate[sa$focus_tier == "Town Centre"], na.rm = TRUE)
+wa_emp_rate <- mean(sa$Employment_rate[sa$focus_tier == "Wider Ayr"], na.rm = TRUE)
+tc_jobs <- jobs_per_cap$total_jobs[jobs_per_cap$focus_tier == "Town Centre"]
+tc_pop <- jobs_per_cap$population[jobs_per_cap$focus_tier == "Town Centre"]
+tc_ratio <- jobs_per_cap$jobs_per_resident[jobs_per_cap$focus_tier == "Town Centre"]
+tc_crime <- mean(sa$crime_rate[sa$focus_tier == "Town Centre"], na.rm = TRUE)
+tc_cif <- mean(sa$CIF[sa$focus_tier == "Town Centre"], na.rm = TRUE)
+wa_cif <- mean(sa$CIF[sa$focus_tier == "Wider Ayr"], na.rm = TRUE)
+```
+
+### The case against surrender
+
+The evidence does not support converting the town centre to predominantly residential use:
+
+1. **The town centre still functions as an employment hub.** With `r comma(tc_jobs)` jobs for `r comma(tc_pop)` residents (`r tc_ratio` jobs per resident), the town centre has more employment than population. Converting it to residential use would destroy this employment base.
+
+2. **More residents will not solve the spending power problem.** With an income deprivation rate of `r round(tc_income_rate)`% in the town centre and `r round(wa_income_rate)`% in the wider catchment (compared to `r round(rest_income_rate)`% in the rest of South Ayrshire), adding more residents to the most income-deprived area will not increase consumer spending --- it will dilute it further.
+
+3. **Employment deprivation compounds the problem.** With `r round(tc_emp_rate)`% employment deprivation in the town centre, new residential development would house people in an area where `r round(tc_emp_rate)` in every 100 working-age adults already cannot find work.
+
+4. **Crime deters investment and footfall.** The town centre's crime rate of `r round(tc_crime)` per capita signals an environment that discourages both commercial tenants and visitors. Residential conversion without addressing crime merely relocates vulnerable people into a high-crime environment.
+
+5. **Housing quality questions remain.** Existing housing in the area already shows elevated overcrowding and poor heating. Adding more residential stock without addressing these systemic issues is not regeneration --- it is managed decline.
+
+### The case for renaissance
+
+The same evidence points toward a viable alternative:
+
+1. **Health services should be anchored in the town centre.** With a Comparative Illness Factor of `r round(tc_cif)` in the town centre and `r round(wa_cif)` in the wider catchment (Scottish average = 100), there is clear demand for health services in these areas. GP surgeries, pharmacies, and community health facilities generate consistent footfall and create a reason for regular visits to the town centre.
+
+2. **The employment base, though weakened, is diverse.** Retail, hospitality, health, education, and professional services all have a presence. The Pride in Place programme (up to \pounds{}20 million over 10 years) and Burns Statue Square redevelopment (\pounds{}16 million) create an investment window to strengthen rather than abandon this base.
+
+3. **Education and skills represent an opportunity.** High rates of no qualifications and low university participation indicate unmet demand for education and training --- exactly the kind of service that could be anchored in a town centre, drawing people in and building human capital.
+
+4. **The catchment population exists.** The Wider Ayr area has a substantial residential population. The challenge is not a lack of people but a lack of reasons --- and accessible routes --- to come into the town centre.
+
+### Summary
+
+```{r summary-table}
+summary_stats <- tibble(
+  Indicator = c(
+    "Town centre population",
+    "Town centre jobs",
+    "Jobs per resident",
+    "Income deprivation (Town Centre)",
+    "Income deprivation (Wider Ayr)",
+    "Employment deprivation (Town Centre)",
+    "Crime rate (Town Centre)",
+    "Illness factor (Town Centre, Scottish avg = 100)",
+    "Illness factor (Wider Ayr, Scottish avg = 100)",
+    "Pride in Place investment",
+    "Burns Statue Square investment"
+  ),
+  Value = c(
+    comma(tc_pop),
+    comma(tc_jobs),
+    as.character(tc_ratio),
+    paste0(round(tc_income_rate), "%"),
+    paste0(round(wa_income_rate), "%"),
+    paste0(round(tc_emp_rate), "%"),
+    as.character(round(tc_crime)),
+    as.character(round(tc_cif)),
+    as.character(round(wa_cif)),
+    "\u00A320m / 10 years",
+    "\u00A316m"
+  ),
+  Implication = c(
+    "Small residential base --- town centre functions as workplace, not dormitory",
+    "Significant employment hub despite deprivation",
+    "More jobs than residents: town centre serves wider area",
+    "Low spending power among residents",
+    "Low spending power across entire catchment",
+    "High worklessness limits local economic activity",
+    "Deters footfall and business investment",
+    "High health service demand --- anchor services here",
+    "Catchment-wide health need supports service co-location",
+    "Opportunity window for economic regeneration",
+    "Physical infrastructure investment creates momentum"
+  )
+)
+
+kable(summary_stats, caption = "Key economic statistics for Ayr town centre and policy implications")
+```
+
+### Limitations
+
+- **BRES open access data is rounded** to the nearest 5 for disclosure control. Small-area employment counts should be interpreted as approximate.
+- **SIMD 2020v2 uses pre-pandemic data** (approximately 2017--2019). Employment and income deprivation may have worsened since.
+- **BRES data covers employees**, not self-employed workers. Town centre self-employment (e.g. market traders, independent retailers) is not captured.
+- **Only two town centre datazones** makes tier-level statistics inherently noisy. Individual datazone values should be examined alongside tier averages.
+- **Correlation is not causation.** The scatter plots show associations between indicators, not causal relationships.
+
+## References
