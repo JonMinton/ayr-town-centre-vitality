@@ -7,6 +7,7 @@ format:
     theme: simple
     slide-number: true
     embed-resources: true
+    scrollable: true
     width: 1280
     height: 720
 bibliography: ../refs/references.bib
