@@ -26,6 +26,10 @@ website:
             href: analysis/local-economy.qmd
           - text: "Urban Accessibility"
             href: analysis/urban-accessibility.qmd
+      - text: "Discussion"
+        menu:
+          - text: "Gravity Model Framework"
+            href: docs/gravity-model-framework.qmd
       - text: "References"
         menu:
           - text: "Burns Statue Square"

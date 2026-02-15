@@ -1,0 +1,100 @@
+---
+title: "Ayr and Prestwick: A Gravity Model Framework"
+subtitle: "Theoretical Discussion — Not Yet Analysed"
+format: html
+---
+
+::: {.callout-note}
+## Status: Theoretical framework
+
+This page outlines a conceptual framework for understanding the competitive relationship between Ayr and Prestwick town centres. **No quantitative modelling has been carried out yet.** The ideas here are intended to motivate future analysis and to frame the policy implications of the evidence already gathered.
+:::
+
+## The competing centres problem
+
+A recurring theme in this project's evidence base is that Ayr town centre does not exist in isolation. To the north, **Prestwick** has its own attractive high street with ample parking and a residential grid of streets that makes access easy. As community councillor Ian MacLeod put it, the question for many South Ayrshire residents is whether they fall within the "Ayr radius" or the "Prestwick radius."
+
+This is fundamentally a **spatial competition** problem, and the analytical tool best suited to it is the gravity model.
+
+## What is a gravity model?
+
+Gravity models are a spatial interaction framework borrowed from physics. The core idea is that the interaction between two places --- the flow of shoppers, spending, or footfall --- is proportional to their "mass" and inversely proportional to the distance (or travel time) between them:
+
+$$T_{ij} = k \frac{M_i^\alpha \cdot M_j^\beta}{d_{ij}^\gamma}$$
+
+Where:
+
+- $T_{ij}$ = interaction (trips, spending, footfall) between origin $i$ and destination $j$
+- $M_i$ = "mass" of the origin (e.g. residential population)
+- $M_j$ = "mass" of the destination (e.g. retail jobs, commercial floorspace, service provision)
+- $d_{ij}$ = distance or travel time between them
+- $\gamma$ = the distance decay parameter --- how quickly attractiveness falls off with distance
+
+When two destinations compete for the same origin population, the model predicts a **catchment boundary**: the line along which both centres exert equal pull. Residents on one side of this line gravitate toward Ayr; residents on the other side toward Prestwick.
+
+## How the balance could tip
+
+### Ayr loses mass
+
+Every shop that closes, every retail unit converted to flats, every service that relocates reduces Ayr's destination mass ($M_{\text{Ayr}}$). In a gravity model, this shifts the catchment boundary **toward Ayr** --- Prestwick's effective catchment expands, even without Prestwick doing anything.
+
+The [Hourstons/Arran Mall](reference-summaries/ref-hourstons-arran-mall.qmd) saga illustrates this concretely: three failed regeneration plans in six years represent stagnant or declining mass at the heart of Ayr town centre.
+
+### Prestwick gains mass
+
+Prestwick already has advantages that Ian identified: ample parking, an attractive high street, and a residential street pattern that makes access easy. Any improvement in Prestwick's offer --- new shops, better services, improved amenity --- simultaneously pulls the catchment boundary southward.
+
+### Access changes asymmetrically
+
+The [Burns Statue Square](reference-summaries/ref-burns-statue-square.qmd) project (A70 realignment, pedestrian zone) would effectively *reduce* $d_{\text{Ayr}}$ for rail passengers and pedestrians approaching from the north. This is pro-Ayr.
+
+But the [urban accessibility analysis](../analysis/urban-accessibility.qmd) found that public transport users face **2--3 times longer travel times** than car users. If Prestwick remains easier to reach by car while Ayr's access improvements primarily benefit pedestrians and PT users, the effective distance ratio may still favour Prestwick for the car-dependent majority.
+
+## The vicious cycle through a gravity lens
+
+The project's [theory of change](background.qmd) describes a vicious cycle of decline. A gravity model adds spatial precision to this:
+
+1. **Business closures reduce Ayr's mass** --- the catchment boundary shifts toward Ayr
+2. **Smaller catchment means less footfall** --- which causes more closures (positive feedback)
+3. **Meanwhile Prestwick's mass stays constant or grows** --- it absorbs the residents Ayr has lost
+4. **This is not symmetric** --- closing a shop is quick, but attracting a new one requires demonstrated footfall. Ayr can lose catchment share much faster than it can regain it.
+
+This asymmetry is the most important theoretical insight. It suggests that **the cost of inaction is not stagnation but accelerating decline**, because every unit of lost mass shifts the competitive balance further toward Prestwick.
+
+## The residential conversion question
+
+The gravity framework sharpens the case against wholesale residential conversion of Ayr town centre (see the [local economy analysis](../analysis/local-economy.qmd) for the employment evidence):
+
+- Every unit of retail or commercial floorspace converted to housing **reduces Ayr's destination mass**
+- This shifts the catchment boundary toward Ayr, **expanding Prestwick's effective catchment**
+- A larger catchment makes Prestwick more attractive to new businesses
+- This creates a **second vicious cycle** where Prestwick's gain accelerates Ayr's loss
+
+In gravity model terms, residential conversion is not a neutral act of "repurposing" --- it is a **transfer of competitive advantage** from Ayr to Prestwick.
+
+## What future analysis could show
+
+Even without a fully calibrated model, several illustrative analyses would be possible:
+
+- **Indifference boundary mapping**: Show the line where Ayr and Prestwick exert equal pull under current conditions, and how it shifts under scenarios (retail loss, access improvement, or both)
+- **Sensitivity analysis**: How much mass does Ayr need to *maintain* its current catchment if Prestwick improves? How much does the Burns Statue Square access improvement offset a given level of retail loss?
+- **The contested zone**: Identify the datazones that sit on or near the indifference boundary --- these are the populations most sensitive to changes in either centre's offer
+
+### Data requirements
+
+- Origin--destination travel time matrices (by car and public transport) --- derivable from OpenStreetMap data or routing APIs
+- Destination "mass" measures --- the [BRES employment data](../analysis/local-economy.qmd) already in the project provides a starting point
+- Calibration data (actual footfall or spending) would strengthen the model, but even an uncalibrated relative model comparing scenarios would be informative
+
+## Policy implications (tentative)
+
+If the gravity framework is correct, the current [investment window](reference-summaries/ref-pride-in-place.qmd) --- Burns Statue Square plus Pride in Place --- needs to do two things simultaneously:
+
+1. **Increase Ayr's mass**: Anchor essential services (health, education) in the town centre; attract new commercial activity; resist residential conversion of key commercial sites
+2. **Reduce access friction**: The A70 realignment and active travel improvements reduce effective distance for pedestrians and PT users
+
+Doing only one without the other may be insufficient. Improving access without increasing mass just makes it easier to *pass through* Ayr on the way to Prestwick. Increasing mass without improving access leaves the A70 barrier in place, limiting who can reach the new services.
+
+The gravity model framework suggests that **the combination is what matters** --- and that the current investment window, which targets both access and mass simultaneously, is correctly designed.
+
+## References
