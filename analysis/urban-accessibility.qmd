@@ -215,11 +215,10 @@ Bus access is the most critical dimension for the populations identified in the 
 
 ```{r bus-map, fig.height=8}
 plot_infrastructure_map(
-  sa, infra$bus_stops, "Bus stops",
+  focus_dzs, infra$bus_stops, "Bus stops",
   point_colour = INFRA_PALETTE["Bus stops"],
-  title = "Bus Stop Locations",
-  subtitle = paste0(nrow(infra$bus_stops), " bus stops in the study area"),
-  focus_extent = focus_extent
+  title = "Bus Stop Locations: Wider Ayr",
+  subtitle = paste0(nrow(infra$bus_stops), " bus stops in the study area")
 )
 ```
 
@@ -266,12 +265,11 @@ Car access matters because it is the dominant mode of travel to Ayr town centre.
 
 ```{r parking-map, fig.height=8}
 plot_infrastructure_map(
-  sa, infra$car_parks, "Car parks",
+  focus_dzs, infra$car_parks, "Car parks",
   point_colour = INFRA_PALETTE["Car parks"],
   point_size = 2.5,
-  title = "Car Park Locations",
-  subtitle = paste0(nrow(infra$car_parks), " car parks in the study area (nodes + areas)"),
-  focus_extent = focus_extent
+  title = "Car Park Locations: Wider Ayr",
+  subtitle = paste0(nrow(infra$car_parks), " car parks in the study area (nodes + areas)")
 )
 ```
 
@@ -298,11 +296,10 @@ Pedestrian crossings are the infrastructure that mediates the conflict between v
 
 ```{r crossing-map, fig.height=8}
 plot_infrastructure_map(
-  sa, infra$crossings, "Pedestrian crossings",
+  focus_dzs, infra$crossings, "Pedestrian crossings",
   point_colour = INFRA_PALETTE["Pedestrian crossings"],
-  title = "Pedestrian Crossing Locations",
-  subtitle = paste0(nrow(infra$crossings), " crossings in the study area"),
-  focus_extent = focus_extent
+  title = "Pedestrian Crossing Locations: Wider Ayr",
+  subtitle = paste0(nrow(infra$crossings), " crossings in the study area")
 )
 ```
 
@@ -328,21 +325,19 @@ Cycle paths and footpaths provide the infrastructure for car-free access to the 
 
 ```{r cycle-map, fig.height=8}
 plot_line_infrastructure_map(
-  sa, infra$cycle_paths, "Cycle paths",
+  focus_dzs, infra$cycle_paths, "Cycle paths",
   line_colour = INFRA_PALETTE["Cycle paths"],
-  title = "Cycle Path Network",
-  subtitle = paste0(nrow(infra$cycle_paths), " cycle path segments in the study area"),
-  focus_extent = focus_extent
+  title = "Cycle Path Network: Wider Ayr",
+  subtitle = paste0(nrow(infra$cycle_paths), " cycle path segments in the study area")
 )
 ```
 
 ```{r footpath-map, fig.height=8}
 plot_line_infrastructure_map(
-  sa, infra$footpaths, "Footpaths",
+  focus_dzs, infra$footpaths, "Footpaths",
   line_colour = "#457B9D",
-  title = "Footpath Network",
-  subtitle = paste0(nrow(infra$footpaths), " footpath segments in the study area"),
-  focus_extent = focus_extent
+  title = "Footpath Network: Wider Ayr",
+  subtitle = paste0(nrow(infra$footpaths), " footpath segments in the study area")
 )
 ```
 
@@ -368,12 +363,11 @@ The Burns Statue Square project includes an active travel route linking the town
 
 ```{r railway-map, fig.height=8}
 plot_infrastructure_map(
-  sa, infra$railway_stations, "Railway stations",
+  focus_dzs, infra$railway_stations, "Railway stations",
   point_colour = INFRA_PALETTE["Railway stations"],
   point_size = 4,
-  title = "Railway Stations",
-  subtitle = paste0(nrow(infra$railway_stations), " station(s) in the study area"),
-  focus_extent = focus_extent
+  title = "Railway Stations: Wider Ayr",
+  subtitle = paste0(nrow(infra$railway_stations), " station(s) in the study area")
 )
 ```
 
