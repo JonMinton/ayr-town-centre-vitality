@@ -16,6 +16,30 @@ A recurring theme in this project's evidence base is that Ayr town centre does n
 
 This is fundamentally a **spatial competition** problem, and the analytical tool best suited to it is the gravity model.
 
+## Ayr and Prestwick by the numbers
+
+Before introducing the model, it is worth setting out the factual comparison. The [Understanding Scottish Places](https://usp.scot) (USP) tool [@stp2025] provides town-level profiles that reveal how different these two centres are [@usp2024ayr; @usp2024prestwick]:
+
+| Indicator | Ayr | Prestwick | What it means |
+|-----------|-----|-----------|---------------|
+| Population (2022) | 46,182 | 14,570 | Ayr is 3.2 times larger |
+| Population change (2011--22) | -1% | -2% | Both declining |
+| Jobs | 20,000 | 8,000 | Ayr has 2.5 times more employment |
+| Average house price | GBP 186k | GBP 210k | Prestwick 13% more expensive |
+| No car | 27% | 20% | Ayr has more car-deprived households |
+| Degree or higher | 31% | 33% | Prestwick slightly more qualified |
+| Semi/unskilled manual | 38% | 33% | Ayr more working-class |
+| Social housing | 21% | 11% | Ayr has double the social housing |
+| Owner-occupied | 66% | 79% | Prestwick much more homeowning |
+| People per shop | 74 | 94 | Ayr has more retail per capita |
+| Health sector share | 17% | 17% | Both health-dependent |
+
+Two features of this comparison stand out.
+
+First, the **structural inequality**. Ayr is larger and has more services, but its population is poorer, less qualified, less mobile, and more reliant on social housing. Prestwick is smaller but more affluent, more car-owning, and more homeowning. These are not two versions of the same town --- they are structurally different places sharing the same geography.
+
+Second, the **USP classification**. USP assigns each town a typology based on its self-sufficiency and relationships with other places. Ayr is classified as **"independent to interdependent"** --- it has a good diversity of assets and serves a wider catchment. Prestwick is classified as **"interdependent to independent"** --- it has assets relative to its population but its residents also use services elsewhere. Crucially, the "similar towns" lists have **zero overlap**: Ayr is grouped with declining regional service centres (Dumfries, Elgin, Forfar, Hawick), while Prestwick is grouped with affluent commuter towns (Bishopbriggs, Ellon, Giffnock, Gourock). USP sees them as fundamentally different types of place.
+
 ## What is a gravity model?
 
 Gravity models are a spatial interaction framework borrowed from physics. The core idea is that the interaction between two places --- the flow of shoppers, spending, or footfall --- is proportional to their "mass" and inversely proportional to the distance (or travel time) between them:
@@ -49,6 +73,24 @@ Prestwick already has advantages that Ian identified: ample parking, an attracti
 The [Burns Statue Square](reference-summaries/ref-burns-statue-square.qmd) project (A70 realignment, pedestrian zone) would effectively *reduce* $d_{\text{Ayr}}$ by improving traffic flow and pedestrian access from the south and east. This is pro-Ayr --- though as discussed in the [BSS reference summary](reference-summaries/ref-burns-statue-square.qmd#the-rail-footfall-question), the benefit is more likely to come from general access improvements than from rail-generated footfall specifically. The originally planned active travel route to Prestwick Airport has been [discontinued](reference-summaries/ref-burns-statue-square.qmd#scope-of-works).
 
 The [urban accessibility analysis](../analysis/urban-accessibility.qmd) found that public transport users face **2--3 times longer travel times** than car users. If Prestwick remains easier to reach by car while Ayr's access improvements primarily benefit pedestrians, the effective distance ratio may still favour Prestwick for the car-dependent majority.
+
+### The interceptor advantage
+
+Geography compounds Prestwick's advantage. Prestwick sits **between Ayr and the rest of Ayrshire to the north**. Travellers from Kilmarnock, Irvine, Kilwinning, and the north Ayrshire coast --- whether by road or rail --- encounter Prestwick *before* Ayr. In gravity model terms, Prestwick acts as an **interceptor**: it can capture footfall that might otherwise continue south to Ayr.
+
+Ayr is the terminus; Prestwick is on the way. This geographic arrangement gives Prestwick a structural distance advantage over Ayr for the entire northern catchment. The only populations for whom Ayr is closer than Prestwick are those living south of Ayr itself --- a smaller and more rural population base. For the contested population between the two towns, Prestwick is always the nearer option.
+
+## Structural inequality and the gravity model
+
+The USP data above reveals that the Ayr--Prestwick relationship is not a competition between equals. The two towns occupy different positions in South Ayrshire's socioeconomic structure, and this shapes how the gravity model operates in practice.
+
+**Ayr has more mass but more friction.** With 20,000 jobs, more shops per capita, and a larger service base, Ayr is the regional service centre. But 27% of its households have no car, 21% are in social housing, and 38% of its working-age population is in semi-skilled or unskilled occupations. Access is harder, deprivation is higher, and the town centre faces the A70 barrier that the Burns Statue Square project aims to address.
+
+**Prestwick has less mass but lower friction.** With 8,000 jobs and fewer shops, Prestwick is a smaller centre. But 80% of its households have a car, 79% are owner-occupiers, and its high street is compact with ample parking. Access is easy, the population is more affluent, and there is no equivalent infrastructure barrier.
+
+**The asymmetry of choice.** This structural inequality means the "competition" between the two towns is not symmetric. Car-owning residents --- disproportionately Prestwick's population --- can choose either centre. Car-free residents --- disproportionately Ayr's population --- are effectively captive to Ayr and its bus network. When Ayr loses a shop, its captive population loses a service; Prestwick's mobile population simply goes elsewhere. When Prestwick gains a café, it draws from the whole car-owning catchment, including Ayr residents who can drive.
+
+Any claim that Ayr and Prestwick are "complementary" must reckon with this asymmetry. Complementarity requires both centres to serve distinct functions that the other cannot easily replicate. But the structural inequality means Prestwick can increasingly replicate Ayr's retail and hospitality functions for the mobile population, while Ayr cannot replicate Prestwick's ease of access for the car-deprived population.
 
 ## The vicious cycle through a gravity lens
 
@@ -86,6 +128,32 @@ Even without a fully calibrated model, several illustrative analyses would be po
 - Destination "mass" measures --- the [BRES employment data](../analysis/local-economy.qmd) already in the project provides a starting point
 - Calibration data (actual footfall or spending) would strengthen the model, but even an uncalibrated relative model comparing scenarios would be informative
 
+## Two scenarios for the Ayr--Prestwick relationship
+
+The gravity framework and USP data together suggest two starkly different futures for the Ayr--Prestwick relationship. Which one materialises depends on decisions being made now.
+
+### Optimistic: positive interdependence
+
+In this scenario, Ayr and Prestwick develop genuinely different functions that complement rather than compete with each other:
+
+- **Ayr becomes a services and employment hub** --- health centres, civic facilities, education, and specialist services anchored in the town centre create destination footfall that Prestwick cannot replicate. Ayr's 20,000 jobs and its role as South Ayrshire's administrative centre give it a foundation that Prestwick lacks.
+- **Prestwick remains a residential and hospitality centre** --- its cafés, restaurants, and compact high street serve a different market. Residents use both centres for different purposes.
+- **Improved access reduces friction** --- the Burns Statue Square A70 realignment makes it easier to reach Ayr from the south and east, widening its effective catchment.
+- **The two towns grow different niches** rather than competing for the same retail customers.
+
+This scenario requires three things simultaneously: Ayr gains mass through anchored services, resists residential conversion of key commercial sites, and improves access. If any one of these fails, the scenario unravels.
+
+### Pessimistic: structural divergence
+
+In this scenario, the structural inequality between the two towns widens into divergent trajectories:
+
+- **Prestwick captures the mobile, affluent population** --- its geographic position as an interceptor between Ayr and the north means it captures car-owning residents before they reach Ayr. Its ease of access, ample parking, and concentrated hospitality offering make it the default choice for anyone with a car.
+- **Ayr is left with the captive, car-deprived population** --- the 27% of Ayr households without a car, the 21% in social housing, and the bus-dependent populations identified in the [deprivation analysis](../analysis/simd-ayr-town-centre.qmd). These residents need services, not housing.
+- **Residential conversion accelerates the divergence** --- every unit of commercial floorspace converted to housing removes destination mass, shifting the catchment boundary north. But residential footfall is not destination footfall: people living above empty shops do not replace the customers who used to travel to those shops.
+- **The USP "similar towns" divergence becomes a trajectory** --- Ayr moves toward Hawick and Forfar (declining service towns), while Prestwick consolidates its position alongside Bishopbriggs and Giffnock (affluent commuter suburbs). Two towns sharing the same geography end up in different economic categories.
+
+This scenario plays out if the Burns Statue Square redevelopment is cosmetic rather than catalytic, if residential conversion of the Hourstons/Arran Mall site proceeds without commercial anchors, or if Pride in Place investment in Northern Ayr fails to generate increased footfall in the town centre proper.
+
 ## Policy implications (tentative)
 
 If the gravity framework is correct, revitalisation needs to do two things simultaneously:
@@ -98,5 +166,7 @@ The Burns Statue Square project [@southayrshire2025burnsstatue] directly address
 Doing only one without the other may be insufficient. Improving access without increasing mass just makes it easier to *pass through* Ayr on the way to Prestwick. Increasing mass without improving access leaves the A70 barrier in place, limiting who can reach the new services.
 
 The gravity model framework suggests that **the combination is what matters** --- and that any investment, whether in the town centre or adjacent areas, must ultimately increase Ayr's destination mass and reduce access friction simultaneously.
+
+The choice between the optimistic and pessimistic scenarios above is not predetermined. USP still classifies Ayr as "independent to interdependent" --- it has assets, it serves a wider catchment, and it retains a significant employment base. But maintaining that status requires active investment in its service function. The structural inequality with Prestwick means that drift and inaction do not produce stagnation --- they produce the pessimistic scenario, because the gravity model's dynamics favour the centre with lower friction and an interceptor advantage.
 
 ## References
