@@ -64,7 +64,7 @@ The evidence supports **economic renaissance**, not residential surrender:
 2. Health demand is concentrated nearby --- anchor health services in the town centre
 3. Income deprivation is high but employment exists --- the issue is access and wages, not absence of jobs
 4. Residential conversion removes the economic rationale for the town centre entirely
-5. The investment window (Burns Statue Square + Pride in Place) targets precisely the right interventions
+5. The Burns Statue Square investment targets precisely the right intervention; Pride in Place may offer indirect support from Northern Ayr
 
 ## The public transport penalty
 
@@ -76,10 +76,11 @@ The evidence supports **economic renaissance**, not residential surrender:
 
 ## The A70 is the biggest barrier
 
-- The A70 road **physically separates Ayr Railway Station from the town centre**
+- Burns Statue Square functions as a **traffic island**, hostile to pedestrians and vehicles approaching from the south and east
 - Pedestrian crossings are sparse at exactly the point where foot traffic should flow
 - Burns Statue Square project realigns the A70 and creates a pedestrian zone
-- This is the **single most impactful intervention** identified in the evidence
+- The primary benefit is **improved traffic flow and general access**, not just the station-to-town-centre link
+- But the gateway must lead somewhere --- BSS must connect to a **revitalised inner town centre**
 
 ## Key findings
 
@@ -87,9 +88,9 @@ The evidence supports **economic renaissance**, not residential surrender:
 
 ## The investment window
 
-- **Burns Statue Square** [@southayrshire2025burnsstatue]: GBP 16 million --- A70 realignment, pedestrian zone, shopfront improvements, active travel route to Prestwick Airport. Construction from summer 2026.
-- **Pride in Place** [@ukgov2025prideinplace]: up to GBP 20 million over 10 years for "Northern Ayr and Town Centre Regeneration Corridor". Funding from April 2026.
-- Together: a **once-in-a-generation opportunity** to break the vicious cycle at its most upstream point.
+- **Burns Statue Square** [@southayrshire2025burnsstatue]: GBP 16 million --- A70 realignment, pedestrian zone, shopfront improvements. Active travel route to Prestwick Airport has been **discontinued** [@dailyrecord2025ayrcyclelanes]. Construction from summer 2026.
+- **Pride in Place** [@ukgov2025prideinplace]: up to GBP 20 million over 10 years for **Northern Ayr** (north of the River Ayr). Funding from April 2026. The town centre proper falls outside the PIP boundary --- any benefit will be indirect.
+- BSS targets the town centre directly; PIP targets the northern approaches. **Deliberate coordination** is needed to connect the two.
 
 ## Next steps
 

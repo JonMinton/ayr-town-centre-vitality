@@ -12,7 +12,7 @@ The **Pride in Place Programme** is a major UK Government regeneration initiativ
 
 ## Relevance to Ayr
 
-South Ayrshire is one of 14 Scottish local authorities selected. The designated neighbourhood is the **"Northern Ayr and Town Centre Regeneration Corridor"** --- directly encompassing the area this project is investigating.
+South Ayrshire is one of 14 Scottish local authorities selected. The designated neighbourhood is the **"Northern Ayr and Town Centre Regeneration Corridor"**. Despite the name, the programme's geographic focus is on **Northern Ayr** --- the area immediately north of the River Ayr. The town centre proper (south of the river, where the commercial core and Burns Statue Square sit) falls outside the PIP boundary. There may be scope to link town centre developments conceptually to PIP-funded activity north of the river, but direct PIP funding for Ayr town centre in its everyday geographic sense should not be assumed.
 
 ## Programme structure
 
@@ -35,6 +35,6 @@ Neighbourhoods were selected based on the **Index of Multiple Deprivation** (IMD
 
 ## Policy significance
 
-This is a substantial funding commitment that creates both an opportunity and a constraint for Ayr town centre planning. The programme's three strategic aims --- stronger communities, thriving places, empowered residents --- align closely with the theory of change outlined in this project (see [background](../background.qmd)). Any redevelopment proposals for the town centre should be considered in the context of this funding stream.
+This is a substantial funding commitment that creates both an opportunity and a constraint for planning in the wider Ayr area. The programme's three strategic aims --- stronger communities, thriving places, empowered residents --- align closely with the theory of change outlined in this project (see [background](../background.qmd)). However, the geographic limitation to Northern Ayr means that any optimism about PIP funding the town centre directly must be tempered. The programme's primary impact on the town centre will be indirect --- through improvements to the northern approaches and surrounding neighbourhoods that may increase footfall and connectivity.
 
 ## References

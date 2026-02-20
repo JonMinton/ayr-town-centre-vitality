@@ -35,14 +35,16 @@ Three different plans in six years, none of which has broken ground. The site ha
 
 ## Policy significance
 
-This is the site Ian (community councillor) flagged as being "disposed of" to residential developers. It crystallises the central policy tension in this project:
+This is the site Ian MacLeod (community councillor) flagged as being "disposed of" to residential developers. It crystallises the central policy tension in this project.
 
-- **Residential conversion** would bring people into the town centre (supporting footfall) but would reduce the stock of commercial/civic space and may not address the root causes of decline
-- **Commercial/civic use** (the original leisure centre or care village proposals) would create destination footfall but has repeatedly proven unaffordable
-- The **residential pivot** is explicitly framed by the council as a strategy to increase town centre living and footfall, recognising that attracting new retail tenants is no longer realistic
+The evidence gathered in this project --- particularly the [economic analysis](../../analysis/local-economy.qmd) and the [gravity model framework](../gravity-model-framework.qmd) --- argues against wholesale residential conversion:
+
+- **The town centre is a jobs hub**, employing roughly three times more people than live there. Residential conversion would destroy this employment function.
+- **Every unit of commercial floorspace converted to housing reduces the town centre's "destination mass"**, shifting the competitive balance toward Prestwick and accelerating a second vicious cycle of decline.
+- **The council's residential pivot** is framed as a strategy to increase town centre living and footfall. But residential footfall is not the same as destination footfall --- people living above shops are not a substitute for people travelling to shops.
 
 The failure of three successive plans over six years --- and the progressive deterioration of a prominent town-centre site --- is itself evidence of the vicious cycle this project hypothesises. The longer a prime site sits vacant, the harder it becomes to attract investment, and the more the surrounding area declines.
 
-The site falls within the **Pride in Place** programme area (see [Pride in Place summary](ref-pride-in-place.qmd)), which may open new funding routes for a mixed-use rather than purely residential scheme.
+The site is in Ayr town centre proper, which is **south of the River Ayr** and therefore outside the Pride in Place programme's geographic boundary (see [Pride in Place summary](ref-pride-in-place.qmd)). PIP funding cannot be assumed for this site, though there may be scope to link town centre proposals conceptually to PIP-funded improvements north of the river.
 
 ## References

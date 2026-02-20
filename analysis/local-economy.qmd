@@ -56,7 +56,7 @@ dz_econ <- get_datazone_economy(sa)
 
 ## Introduction
 
-Ayr town centre faces a critical choice. After three failed regeneration attempts at the former Hourstons/Arran Mall site --- leisure centre, care village, and now mixed residential [@southayrshire2025hourstons] --- the question is whether to surrender the town centre to residential conversion or to pursue economic renaissance through the incoming Pride in Place programme [@ukgov2025prideinplace] and the Burns Statue Square redevelopment [@southayrshire2025burnsstatue].
+Ayr town centre faces a critical choice. After three failed regeneration attempts at the former Hourstons/Arran Mall site --- leisure centre, care village, and now mixed residential [@southayrshire2025hourstons] --- the question is whether to surrender the town centre to residential conversion or to pursue economic renaissance. The Burns Statue Square redevelopment [@southayrshire2025burnsstatue] targets the town centre directly, while the Pride in Place programme [@ukgov2025prideinplace] funds regeneration in Northern Ayr (north of the River Ayr) with potential indirect benefits for the town centre.
 
 This report examines the economic evidence. Using raw deprivation indicators from the Scottish Index of Multiple Deprivation [@scotgov2020simd] and employment data from the Business Register and Employment Survey [@ons2024bres], we profile the economic base of Ayr town centre and its wider catchment at datazone level.
 

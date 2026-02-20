@@ -12,15 +12,30 @@ South Ayrshire Council has secured **GBP 16 million** from the UK Government Lev
 
 ## Scope of works
 
-The project encompasses three themes:
+The project originally encompassed three themes:
 
 1. **Physical regeneration** of the square into an enlarged pedestrian public space extending from Station Road to Smith Street, with new event areas, seating, planting, and information points
 2. **Shopfront improvement scheme** for town-centre businesses
-3. **Active travel route** linking the town centre to Prestwick Airport
+3. ~~**Active travel route** linking the town centre to Prestwick Airport~~ --- **discontinued** following consultation feedback. South Ayrshire Council's depute leader confirmed that "there will be no cycle lanes in Alloway Street or Sandgate or Fullarton Street" [@dailyrecord2025ayrcyclelanes]. The Burns Statue Square regeneration itself proceeds as planned.
 
 ## Key infrastructure change
 
-The critical element is the **realignment of the A70 road**, which currently separates Burns Statue Square from Ayr Railway Station. This would create a contiguous pedestrian zone between the station and the town centre. Some surrounding streets are proposed to become one-way to accommodate redirected traffic.
+The critical element is the **realignment of the A70 road**. Burns Statue Square currently functions as a traffic island, creating a barrier to access from the south and east of Ayr. The A70 carries heavy traffic through the square, making it hostile to pedestrians approaching the town centre from any direction --- not only from the adjacent railway station but from residential areas to the south-east. The realignment would improve traffic flow and create a contiguous pedestrian zone. Some surrounding streets are proposed to become one-way to accommodate redirected traffic.
+
+However, the value of this intervention depends on what lies beyond the gateway. As a standalone cosmetic improvement to the square, the return on GBP 16 million would be limited. The redevelopment must connect to wider revitalisation of the inner town centre --- particularly the vacant Hourstons/Arran Mall site (see [Hourstons summary](ref-hourstons-arran-mall.qmd)). Burns Statue Square must become a flowing gateway to a revitalised town centre, not an endpoint.
+
+## The rail footfall question
+
+South Ayrshire Council's case for the redevelopment emphasises improving the connection between Ayr Railway Station and the town centre, with the expectation that removing the A70 barrier will increase pedestrian footfall from rail passengers.
+
+There are reasons for scepticism about this rationale:
+
+- **Ayr is the southern terminus** of the Glasgow--Ayr line. Most rail passengers arriving at Ayr are residents, not visitors.
+- **Northern towns have alternatives.** Kilwinning, Irvine, and Troon are all closer by rail to Prestwick, which offers a concentrated hospitality offering with ample parking. Ayr is approximately ten minutes further south, with a more spatially fragmented offer.
+- **The southern rail catchment is small.** Maybole (approximately ten minutes south) and Girvan (approximately twenty minutes) have limited populations.
+- **Major social infrastructure is dispersed.** The further education college, university, local authority headquarters, and major leisure centre are all located away from the town centre, reducing the reasons for rail passengers to visit the commercial core specifically.
+
+The A70 barrier is real and its removal would improve access --- but the primary benefit is likely to be for **vehicle traffic flow and pedestrian access from surrounding residential areas** rather than for rail-generated footfall. Rail footfall would only increase meaningfully if the town centre itself became a stronger destination.
 
 ## Timeline
 
@@ -30,8 +45,8 @@ The critical element is the **realignment of the A70 road**, which currently sep
 
 ## Policy significance
 
-This is the most significant planned intervention in Ayr town centre's physical infrastructure. The A70 realignment directly addresses the "poor access" element of the vicious cycle identified in this project's theory of change (see [background](../background.qmd)). By improving the connection between Ayr Railway Station and the town centre, it could meaningfully increase pedestrian footfall. The shopfront improvement scheme addresses visual amenity and business viability simultaneously.
+This is the most significant planned intervention in Ayr town centre's physical infrastructure. The A70 realignment directly addresses the "poor access" element of the vicious cycle identified in this project's theory of change (see [background](../background.qmd)). The shopfront improvement scheme addresses visual amenity and business viability simultaneously. The cancellation of the active travel element is a missed opportunity for sustainable transport connectivity.
 
-The timing is notable: construction overlaps with the start of the Pride in Place programme funding (see [Pride in Place summary](ref-pride-in-place.qmd)), creating a concentrated period of investment in the town centre.
+The timing is notable: construction overlaps with the start of the Pride in Place programme funding (see [Pride in Place summary](ref-pride-in-place.qmd)). However, the two programmes target different geographies --- Burns Statue Square is in the town centre proper, while Pride in Place funding is directed to Northern Ayr, north of the River Ayr. Any synergies between them will need to be deliberately constructed rather than assumed.
 
 ## References

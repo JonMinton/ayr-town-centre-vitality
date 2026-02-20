@@ -58,19 +58,19 @@ infra <- get_osm_infrastructure(sa)
 
 ## Introduction
 
-This is the third in a series of analytical reports examining Ayr town centre. The [first report](simd-ayr-town-centre.qmd) mapped deprivation across the study area using the Scottish Index of Multiple Deprivation. The [second report](local-economy.qmd) profiled the town centre's employment base and built the economic case against residential surrender. This report addresses **accessibility** --- the physical infrastructure that enables or prevents people from reaching the town centre.
+This is the third in a series of four analytical reports examining Ayr town centre. The [first report](simd-ayr-town-centre.qmd) mapped deprivation across the study area using the Scottish Index of Multiple Deprivation. The [second report](local-economy.qmd) profiled the town centre's employment base and built the economic case against residential surrender. This report addresses **accessibility** --- the physical infrastructure that enables or prevents people from reaching the town centre. The [fourth report](../docs/gravity-model-framework.qmd) develops a gravity model framework for understanding the competitive relationship between Ayr and Prestwick.
 
-The project's theory of change identifies poor access as the *starting point* of a vicious cycle: poor access leads to reduced footfall, which leads to business closures, which makes the town centre less attractive, which drives depopulation, which weakens the economic base, which leads to further underinvestment in access. If this theory is correct, then improving access is not just one of many possible interventions --- it is the *most upstream* intervention available.
+The project's theory of change identifies poor access as the *starting point* of a vicious cycle: poor access leads to reduced footfall, which leads to business closures, which makes the town centre less attractive, which drives further loss of footfall and demand, which weakens the economic base, which leads to further underinvestment in access. If this theory is correct, then improving access is not just one of many possible interventions --- it is the *most upstream* intervention available.
 
 ### The planned intervention
 
 The Burns Statue Square redevelopment [@southayrshire2025burnsstatue] represents the most significant planned change to Ayr's transport infrastructure. The GBP 16 million project includes:
 
-- **Realignment of the A70**, which currently separates Burns Statue Square from Ayr Railway Station, creating a barrier between the station and the town centre
+- **Realignment of the A70**, which currently runs through Burns Statue Square as a major traffic route, creating a barrier to pedestrian and vehicle access from the south and east of Ayr
 - **An enlarged pedestrian public space** extending from Station Road to Smith Street
-- **An active travel route** linking the town centre to Prestwick Airport
+- ~~**An active travel route** linking the town centre to Prestwick Airport~~ --- **discontinued** following consultation feedback [@dailyrecord2025ayrcyclelanes]
 
-Construction is targeted for summer 2026, overlapping with the start of Pride in Place programme funding [@ukgov2025prideinplace].
+Construction is targeted for summer 2026. The Pride in Place programme [@ukgov2025prideinplace] begins funding from April 2026, though it targets Northern Ayr (north of the River Ayr) rather than the town centre proper where Burns Statue Square sits.
 
 ### Study area
 
@@ -317,7 +317,7 @@ tc_cross_dist <- cross_stats$mean_dist[cross_stats$focus_tier == "Town Centre"]
 wa_cross_dist <- cross_stats$mean_dist[cross_stats$focus_tier == "Wider Ayr"]
 ```
 
-The mean distance to the nearest pedestrian crossing is `r tc_cross_dist` metres in the Town Centre and `r wa_cross_dist` metres in Wider Ayr. But density alone does not capture the problem. The A70, which runs through Burns Statue Square, creates a specific barrier between Ayr Railway Station and the town centre. The Burns Statue Square project directly addresses this by realigning the A70 through New Bridge Street and creating a contiguous pedestrian zone between the station and the commercial core.
+The mean distance to the nearest pedestrian crossing is `r tc_cross_dist` metres in the Town Centre and `r wa_cross_dist` metres in Wider Ayr. But density alone does not capture the problem. The A70, which runs through Burns Statue Square, creates a specific barrier to access from the south and east of Ayr. The square functions as a traffic island, hostile to pedestrians approaching the town centre from surrounding residential areas and from the adjacent railway station. The Burns Statue Square project directly addresses this by realigning the A70 through New Bridge Street, improving traffic flow and creating a contiguous pedestrian zone.
 
 ## Active travel
 
@@ -357,7 +357,7 @@ if (nrow(line_lengths) > 0) {
 }
 ```
 
-The Burns Statue Square project includes an active travel route linking the town centre to Prestwick Airport. This is significant: Ayr Railway Station is already a key node, and an active travel link to the airport would extend the town centre's connectivity to a regional transport hub.
+The Burns Statue Square project originally included an active travel route linking the town centre to Prestwick Airport. However, this element has been **discontinued** following consultation feedback --- South Ayrshire Council confirmed that there will be no cycle lanes in Alloway Street, Sandgate, or Fullarton Street [@dailyrecord2025ayrcyclelanes]. This is a missed opportunity: an active travel link would have extended the town centre's connectivity to a regional transport hub and supported car-free access for bus-dependent populations.
 
 ## Railway connectivity
 
@@ -382,7 +382,11 @@ rail_stats <- rail_distance |>
 tc_rail_dist <- rail_stats$mean_dist[rail_stats$focus_tier == "Town Centre"]
 ```
 
-Ayr Railway Station sits on the Glasgow--Ayr line, providing direct rail connections to Glasgow Central. The mean distance from town centre datazones to the station is `r comma(tc_rail_dist)` metres. The current A70 alignment creates a barrier between the station and the commercial centre --- exactly the barrier that the Burns Statue Square project proposes to remove.
+Ayr Railway Station sits on the Glasgow--Ayr line, providing direct rail connections to Glasgow Central. The mean distance from town centre datazones to the station is `r comma(tc_rail_dist)` metres. The current A70 alignment creates a barrier between the station and the commercial centre --- a barrier that the Burns Statue Square project proposes to address through road realignment.
+
+However, the significance of rail-generated footfall for Ayr town centre is debatable. South Ayrshire Council's case for the Burns Statue Square redevelopment emphasises the station-to-town-centre connection, but there are reasons for scepticism. Ayr is the **southern terminus** of the Glasgow line: most arriving passengers are residents, not visitors. Towns to the north --- Kilwinning, Irvine, and Troon --- are closer by rail to Prestwick, which offers a concentrated hospitality offering with ample parking. The southern rail catchment (Maybole, Girvan) has limited populations. Major social infrastructure --- further education college, university, local authority headquarters, and the main leisure centre --- is located away from the town centre, reducing the pull for rail visitors specifically.
+
+The A70 barrier is real, but its primary impact may be on **general vehicle and pedestrian access from the south-east** rather than on rail-to-town-centre footfall. Improving traffic flow and pedestrian permeability at Burns Statue Square would benefit all modes of access, not just rail passengers.
 
 ## Synthesis: the accessibility case
 
@@ -437,11 +441,11 @@ The evidence in this report supports a clear argument:
 
 2. **Infrastructure exists but is unevenly distributed.** The town centre is well-served by bus stops, car parks, and crossings. But the wider catchment and rural areas have sparse infrastructure, creating a "last mile" problem that undermines the town centre's function as a service hub.
 
-3. **The A70 is the single biggest barrier.** The road separating Ayr Railway Station from the town centre is a specific, identifiable infrastructure problem. The Burns Statue Square project [@southayrshire2025burnsstatue] directly addresses this by realigning the road and creating a pedestrian zone.
+3. **The A70 is the single biggest barrier.** Burns Statue Square functions as a traffic island, creating a hostile environment for pedestrians and vehicles approaching the town centre from the south and east. The Burns Statue Square project [@southayrshire2025burnsstatue] directly addresses this by realigning the road and creating a pedestrian zone. The primary benefit is likely to be improved traffic flow and general pedestrian access rather than rail-generated footfall specifically (see the [discussion above](#railway-connectivity)).
 
 4. **Accessibility improvements support economic renaissance, not residential surrender.** The [economic analysis](local-economy.qmd) showed that the town centre still functions as an employment hub. Making it easier to reach strengthens this function. Converting it to residential use without first addressing the access barriers that contributed to decline would be to misdiagnose the problem.
 
-5. **The investment window is open.** The Burns Statue Square project (GBP 16 million) and Pride in Place programme [@ukgov2025prideinplace] (up to GBP 20 million over 10 years) together represent a once-in-a-generation opportunity to address Ayr's accessibility deficits. The evidence supports using this investment to break the vicious cycle at its most upstream point.
+5. **The investment window is open --- but geographically split.** The Burns Statue Square project (GBP 16 million) targets the town centre directly. The Pride in Place programme [@ukgov2025prideinplace] (up to GBP 20 million over 10 years) funds regeneration in Northern Ayr, north of the River Ayr --- adjacent to the town centre but not within it. Realising the combined potential of these investments will require deliberate coordination between the two programmes, not an assumption that they naturally overlap.
 
 ```{mermaid}
 %%| fig-cap: "How accessibility improvements break the vicious cycle"
@@ -449,14 +453,14 @@ graph TD
     A[Poor access and infrastructure] --> B[Reduced footfall]
     B --> C[Business closures and loss of amenities]
     C --> D[Town centre less attractive]
-    D --> E[Depopulation, especially young families]
-    E --> F[Ageing and shrinking population]
-    F --> G[Weaker economic base]
+    D --> E[Loss of footfall and demand]
+    E --> F[Weaker economic base]
+    F --> G[Further underinvestment]
     G --> A
 
     H["Burns Statue Square:<br/>A70 realignment and<br/>pedestrian zone"] -.-> A
     H -.-> B
-    I["Pride in Place:<br/>active travel routes and<br/>bus infrastructure"] -.-> A
+    I["Pride in Place:<br/>Northern Ayr regeneration<br/>(indirect benefit)"] -.-> A
     I -.-> D
 
     style H fill:#D62828,color:#fff
